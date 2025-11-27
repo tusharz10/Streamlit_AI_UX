@@ -1,8 +1,6 @@
-import streamlit as st
-import requests
-import json
-import time
-from PIL import Image
-import os
-from typing import List
-import base64
+streamlit
+requests
+json
+time
+PIL
+typing
