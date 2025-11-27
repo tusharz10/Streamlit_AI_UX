@@ -1,2 +1,6 @@
 streamlit==1.28.2
 typing-extensions==4.8.0
+pandas
+numpy
+requests
+Pillow
