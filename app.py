@@ -8,8 +8,9 @@ from typing import List
 import base64
 
 # --- Configuration ---
+# NOTE: Ensure 'BITA_LOGO.png', 'HomeSlides/', and 'ServicesSlides/' folders/files exist in your script directory.
 SLIDES_FOLDER_NAME = "HomeSlides" 
-IMAGE_PATH = r"BITA_LOGO.png" # Assuming BITA_LOGO.png is in the same directory as this script
+IMAGE_PATH = r"BITA_LOGO.png" 
 
 # Define common logo sizes and placeholder URLs for key tools
 LOGO_STYLE = "height: 35px; width: 35px; vertical-align: middle; margin-right: 8px; border-radius: 4px;"
@@ -19,6 +20,10 @@ Fabric_LOGO_URL = "https://davidalzamendi.com/wp-content/uploads/2023/05/Fabric_
 PBI_LOGO_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/New_Power_BI_Logo.svg/1200px-New_Power_BI_Logo.svg.png" 
 SQL_LOGO_URL = "https://symbols.getvecta.com/stencil_27/79_sql-database-generic.494ff6320e.png"
 
+# --- WhatsApp Configuration for Header ---
+WHATSAPP_LOGO_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/1200px-WhatsApp.svg.png"
+WHATSAPP_LINK = "https://wa.me/918982296014"
+
 
 # --- Utility Functions ---
 
@@ -26,7 +31,6 @@ def load_first_image(folder_path: str) -> tuple[Image.Image, str] | tuple[None, 
     # """Loads the first image found in the specified local folder and returns the image object and its filename."""
     
     if not os.path.isdir(folder_path):
-        # Fail silently here if folder doesn't exist to prioritize main app loading
         return None, None
 
     try:
@@ -50,7 +54,6 @@ def load_first_image(folder_path: str) -> tuple[Image.Image, str] | tuple[None, 
         return None, None
 
 
-# Utility function for exponential backoff fetch
 def exponential_backoff_request(url, payload, max_retries=5):
     headers = {'Content-Type': 'application/json'}
     for attempt in range(max_retries):
@@ -75,12 +78,11 @@ st.set_page_config(
     page_title="BITA CLOUD INFO TECH - Software Development & Product Development Services",
     page_icon="https://avatars.githubusercontent.com/u/155072885?v=4",
     layout="wide",
-    # Sidebar control added here
     initial_sidebar_state="collapsed" 
 )
 
 
-# --- Custom CSS Injection ---
+# --- Custom CSS Injection (Final Version) ---
 st.markdown("""
     <style>
         /* --- General Theme and Layout --- */
@@ -89,6 +91,8 @@ st.markdown("""
             --secondary-color: #a020f0;
             --dark-bg: #000000;
             --card-bg: #1f2937;
+            --whatsapp-green: #25d366;
+            --whatsapp-hover-green: #128C7E;
         }
         
         .stApp {
@@ -98,14 +102,12 @@ st.markdown("""
             padding-top: 80px !important; /* Space for fixed navbar */
         }
         
-        /* Hide Streamlit header (but keep footer visible by default) */
         header { 
             visibility: hidden; 
             height: 0px !important;
             padding: 0 !important;
         } 
         
-        /* Navbar, Hero, Services, Insights use this layout (centered) */
         .block-container {
             padding-top: 0 !important;
             padding-left: 1rem;
@@ -114,18 +116,15 @@ st.markdown("""
         }
 
         /* --- Image Stretching Isolation --- */
-        /* Targets the container where the stretched image is placed */
         .stretched-image-container {
-            /* Override the default .block-container padding ONLY for this specific div */
-            width: 100vw !important; /* Force width to full viewport */
-            margin-left: calc(50% - 50vw) !important; /* Center the full-width block */
+            width: 100vw !important; 
+            margin-left: calc(50% - 50vw) !important; 
         }
         
-        /* Targets the image element within the unique container */
         .stretched-image-container .stImage img {
-            width: 100% !important;      /* Fill the 100vw container */
-            max-height: 80vh !important; /* Limit height to prevent overlap/overflow */
-            object-fit: contain;         /* Maintain aspect ratio */
+            width: 100% !important; 
+            max-height: 80vh !important; 
+            object-fit: contain; 
             margin: 0 !important;
         }
 
@@ -152,9 +151,30 @@ st.markdown("""
             font-weight: 600;
             border-radius: 6px;
         }
-        .navbar a:hover {
+        .navbar a:hover:not(.whatsapp-link) { 
             color: var(--primary-color);
             background-color: rgba(0, 224, 255, 0.1);
+        }
+        /* WhatsApp Icon Styling (Larger and Spacing) */
+        .whatsapp-link {
+            background-color: var(--whatsapp-green) !important;
+            padding: 6px 10px !important; 
+            border-radius: 6px !important;
+            border: none !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 30px; 
+        }
+        .whatsapp-link:hover {
+            background-color: var(--whatsapp-hover-green) !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 10px rgba(37, 211, 102, 0.5); 
+        }
+        .whatsapp-icon {
+            height: 25px; /* Increased size */
+            width: 25px; /* Increased size */
+            vertical-align: middle;
         }
         .logo-text {
             font-size: 1.5rem;
@@ -162,10 +182,11 @@ st.markdown("""
             color: var(--primary-color);
             text-shadow: 0 0 5px rgba(0, 224, 255, 0.5);
         }
-
-        /* --- Hero and General Content Styling --- */
+        
+        /* --- Hero and Contact Styling --- */
         .hero-title-main {
-            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            /* Decreased font size by ~50% */
+            font-size: clamp(1.25rem, 2.5vw, 2.25rem); 
             line-height: 1.1;
             font-weight: 800;
             color: white;
@@ -180,6 +201,25 @@ st.markdown("""
             color: var(--secondary-color);
             text-shadow: 0 0 10px rgba(160, 32, 240, 0.8), 0 0 20px rgba(160, 32, 240, 0.4);
         }
+        .contact-form-container {
+            background-color: #1a1a1a; /* Darker box for contact form */
+            padding: 2.5rem;
+            border-radius: 12px;
+            border: 1px solid #333;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            margin: 0 auto 3rem auto; 
+        }
+        .contact-header {
+            color: white; 
+            font-size: 1.875rem; 
+            font-weight: 700; 
+            margin-bottom: 2rem; 
+            border-left: 4px solid var(--primary-color); 
+            padding-left: 1rem;
+        }
+
+        /* --- Service Card Styling (for completeness) --- */
         .service-card {
             background-color: var(--card-bg);
             padding: 1.5rem;
@@ -197,24 +237,6 @@ st.markdown("""
             font-size: 1.25rem;
             font-weight: 700;
             margin-bottom: 0.75rem;
-        }
-        .insight-header {
-             border-left: 4px solid var(--secondary-color);
-             padding-left: 1rem;
-             color: white;
-             font-size: 1.875rem;
-             font-weight: 700;
-        }
-        .insight-output {
-            background-color: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            border: 1px solid #374151;
-            margin-top: 2.5rem;
-        }
-        .stTextArea > label {
-            color: var(--primary-color);
-            font-weight: 600;
         }
         div.stButton > button {
             background-color: #008CBA;
@@ -250,7 +272,10 @@ try:
             <a href="./" class="logo-text">
                 <img src="{DATA_URL}" alt="BITA Logo" style="height: 30px; margin-right: 5px; vertical-align: middle;"> 
             </a>
-            <nav style="display: flex; gap: 30px;">
+            <nav style="display: flex; gap: 30px; align-items: center;">
+                <a href="{WHATSAPP_LINK}" target="_blank" class="whatsapp-link" title="Chat on WhatsApp">
+                    <img src="{WHATSAPP_LOGO_URL}" alt="WhatsApp" class="whatsapp-icon">
+                </a>
                 <a href="#services">Platform</a>
                 <a href="#Servicess">Services</a>
                 <a href="#Aboutus">About us</a>
@@ -278,7 +303,7 @@ st.write('')
 st.write('')
 st.write('')
 
-# --- 1. Hero Section ---
+# --- 1. Hero Section (Size controlled by CSS) ---
 st.markdown("""
     <div style="max-width: 1280px; margin: 0 auto;">
         <h1 class="hero-title-main">
@@ -292,7 +317,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# --- 2. Services Section ---
+# --- 2. Services Section (Platform) ---
 st.markdown('<div id="services"></div>', unsafe_allow_html=True)
 st.markdown("""
     <div>
@@ -304,15 +329,14 @@ st.markdown("""
 
 col1, col2, col3, col4, col5 = st.columns(5)
 
-# Service Cards (simplified to save space)
+# Service Cards
 with col5: st.markdown(f"""<div class="service-card"><p class="card-title"><img src="{ADF_LOGO_URL}" style="{LOGO_STYLE}">Azure Data Factory</p><p style="color: #9ca3af;">Orchestrating data pipelines for hybrid, scalable, and automated ETL/ELT.</p></div>""", unsafe_allow_html=True)
 with col4: st.markdown(f"""<div class="service-card"><p class="card-title"><img src="{PBI_LOGO_URL}" style="{LOGO_STYLE}">Power BI</p><p style="color: #9ca3af;">Load, transform, visualize: SaaS and Fabric deliver secure cloud data insights.</p></div>""", unsafe_allow_html=True)
 with col3: st.markdown(f"""<div class="service-card"><p class="card-title"><img src="{SQL_LOGO_URL}" style="{LOGO_STYLE}">SQL Server</p><p style="color: #9ca3af;">Reliable, high-performance database foundation for secure, complex applications.</p></div>""", unsafe_allow_html=True)
 with col1: st.markdown(f"""<div class="service-card"><p class="card-title"><img src="{Azure_LOGO_URL}" style="{LOGO_STYLE}">Microsoft Azure</p><p style="color: #9ca3af;">Scalable, secure cloud solutions: migration, development, and managed infrastructure services.</p></div>""", unsafe_allow_html=True)
 with col2: st.markdown(f"""<div class="service-card"><p class="card-title"><img src="{Fabric_LOGO_URL}" style="{LOGO_STYLE}">Microsoft Fabric</p><p style="color: #9ca3af;">Cloud, SaaS, and Fabric: Modern solutions for secure data development and scaling.</p></div>""", unsafe_allow_html=True)
 
-# --- 3. AI Insight Generator (Gemini Feature - Disabled/Commented out in original) ---
-# Keeping the output logic just in case, but skipping the input/button to match the original
+# --- 3. AI Insight Generator (Placeholder/Inactive) ---
 if st.session_state.error_message:
     st.error(st.session_state.error_message)
 
@@ -336,11 +360,7 @@ if st.session_state.insight_data:
         
     st.markdown('</div>', unsafe_allow_html=True)
 
-########################    
-########################    
-# Services Page
-########################    
-########################    
+# --- Services Page Slideshow ---
 
 st.markdown('<div id="Servicess"></div>', unsafe_allow_html=True)
 
@@ -350,23 +370,11 @@ image_Servicespaths = [
     "ServicesSlides/9.png", 
 ]
 
-# --- 2. The Looping Structure ---
 for image_path in image_Servicespaths:
-    if image_path: 
-        filename = image_path.split('/')[-1]
-
-        # 4. Start the unique container with the stretching class
+    if os.path.exists(image_path): 
         st.markdown('<div class="stretched-image-container">', unsafe_allow_html=True)
-        
-        # 5. Display the image inside the container
-        st.image(
-            image_path
-        )
-        
-        # 6. Close the container
+        st.image(image_path)
         st.markdown('</div>', unsafe_allow_html=True)
-        
-        # 7. Optional: Display info outside the stretched container
         st.markdown(
             f"""
             <div style='background: rgba(0, 0, 0, 0.5); color: #9ca3af; padding: 5px 10px; 
@@ -375,26 +383,15 @@ for image_path in image_Servicespaths:
             """,
             unsafe_allow_html=True
         )
-        
-        # Add a little space between images for separation in the slideshow list
         st.markdown('<br>', unsafe_allow_html=True)
 
-# --- 8. Fallback for an Empty List ---
-if not image_Servicespaths:
+if not image_Servicespaths or not any(os.path.exists(p) for p in image_Servicespaths):
     st.markdown('<div style="height: 50px;"></div>', unsafe_allow_html=True)
-    st.info("No primary snapshot image paths defined in the list.")
+    st.info("No service snapshot images found.")
 
 
+# --- Home Slideshow ---
 
-########################    
-########################    
-########################    
-    
-#################################################
-# --- 4. IMAGE VIEWER SECTION (STRETCHED) ---
-#################################################
-
-# 1. Define the list of image paths for the slideshow
 image_paths = [
     "HomeSlides/1.png", "HomeSlides/2.png", "HomeSlides/3.png", "HomeSlides/4.png", 
     "HomeSlides/5.png", "HomeSlides/6.png", "HomeSlides/7.png", "HomeSlides/8.png", 
@@ -403,23 +400,11 @@ image_paths = [
 
 st.markdown('<div id="Aboutus"></div>', unsafe_allow_html=True)
 
-# --- 2. The Looping Structure ---
 for image_path in image_paths:
-    if image_path: 
-        filename = image_path.split('/')[-1]
-
-        # 4. Start the unique container with the stretching class
+    if os.path.exists(image_path): 
         st.markdown('<div class="stretched-image-container">', unsafe_allow_html=True)
-        
-        # 5. Display the image inside the container
-        st.image(
-            image_path
-        )
-        
-        # 6. Close the container
+        st.image(image_path)
         st.markdown('</div>', unsafe_allow_html=True)
-        
-        # 7. Optional: Display info outside the stretched container
         st.markdown(
             f"""
             <div style='background: rgba(0, 0, 0, 0.5); color: #9ca3af; padding: 5px 10px; 
@@ -428,46 +413,20 @@ for image_path in image_paths:
             """,
             unsafe_allow_html=True
         )
-        
-        # Add a little space between images for separation in the slideshow list
         st.markdown('<br>', unsafe_allow_html=True)
 
-# --- 8. Fallback for an Empty List ---
-if not image_paths:
+if not image_paths or not any(os.path.exists(p) for p in image_paths):
     st.markdown('<div style="height: 50px;"></div>', unsafe_allow_html=True)
-    st.info("No primary snapshot image paths defined in the list.")
+    st.info("No home snapshot images found.")
 
 
-# --- 5. NEW: Contact Us Section (Anchor Target) ---
+# --- 5. Contact Us Section (Dark Box Form) ---
 st.markdown('<br><br>', unsafe_allow_html=True) 
-st.markdown('<div id="contact-us-section"></div>', unsafe_allow_html=True) # Anchor ID for Navbar link
+st.markdown('<div id="contact-us-section"></div>', unsafe_allow_html=True)
 
 PRIMARY_COLOR = "#00e0ff"
 
-
-# Apply minimal CSS for colors/styles if needed (or keep it simple)
-st.markdown(f"""
-    <style>
-        .stApp {{
-            background-color: #000000;
-            color: #e5e7eb;
-            font-family: 'Inter', sans-serif;
-        }}
-        .contact-header {{
-            color: white; 
-            font-size: 1.875rem; 
-            font-weight: 700; 
-            margin-bottom: 2rem; 
-            border-left: 4px solid {PRIMARY_COLOR}; 
-            padding-left: 1rem;
-        }}
-    </style>
-""", unsafe_allow_html=True)
-
-
 # --- Contact Us Content ---
-# st.markdown('<br><br><br>', unsafe_allow_html=True) # Space to clear the fixed navbar
-
 st.markdown("""
     <div style="padding: 0 1rem;">
         <h2 class="contact-header">
@@ -479,9 +438,11 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
+# Wrap the form in the custom dark container
+st.markdown('<div class="contact-form-container">', unsafe_allow_html=True)
+
 # Create a form container
 with st.form("contact_form", clear_on_submit=True):
-    # Using columns for better layout of input fields
     col_name, col_email = st.columns(2)
     
     with col_name:
@@ -493,8 +454,8 @@ with st.form("contact_form", clear_on_submit=True):
     company = st.text_input("Company Name (Optional)", placeholder="BITA CLOUD INFO TECH")
     
     message = st.text_area("Your Message / Project Brief", 
-                           placeholder="Tell us about your project, data challenges, or strategic goals...", 
-                           height=150)
+                            placeholder="Tell us about your project, data challenges, or strategic goals...", 
+                            height=150)
     
     submitted = st.form_submit_button("Send Message")
 
@@ -505,30 +466,12 @@ with st.form("contact_form", clear_on_submit=True):
             # Simulate success/backend submission
             st.success(f"Thank you, **{name.strip()}**! Your message has been received. We'll be in touch soon.")
             
-# Display contact info below the form
-# st.markdown(
-#     """
-#     <div style="padding: 1rem; margin-top: 2rem; border-top: 1px solid #1f2937; color: #9ca3af;">
-#         <h4 style="color: white; margin-bottom: 10px;">Alternatively, connect with us directly:</h4>
-#         <p>📧 **Email:** <a href="mailto:contact@bitaclouddatatech.com" style="color: #38bdf8; text-decoration: none;">contact@bitaclouddatatech.com</a></p>
-#         <p>🏢 **Address:** [Your Company Address Line 1, City, State, ZIP]</p>
-#     </div>
-#     """, unsafe_allow_html=True
-# )
-
-# st.markdown('<br><br>', unsafe_allow_html=True)
-# st.markdown("""
-#     <footer style="background-color: #000; border-top: 1px solid #1f2937; padding: 2rem; text-align: center; color: #6b7280; font-size: 0.875rem;">
-#         &copy; 2025 BITA CLOUD INFO TECH PVT LTD. All rights reserved.
-#     </footer>
-# """, unsafe_allow_html=True)
-
+st.markdown('</div>', unsafe_allow_html=True)
 
 # Create separation
 st.markdown('<br><br>', unsafe_allow_html=True) 
 
-# 1. Use st.markdown for the centered contact information 
-# (This is simpler than injecting a whole HTML footer block)
+# 1. Contact information 
 st.markdown(
     """
     <div style="text-align: center; color: #e5e7eb; padding: 1rem 0; background-color: #000; border-top: 1px solid #1f2937;">
@@ -541,89 +484,10 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# 2. Add the Copyright line using simple markdown or st.write
+# 2. Copyright line
 st.markdown(
     "<p style='text-align: center; color: #6b7280; font-size: 0.875rem; background-color: #000; padding-bottom: 1rem; margin: 0;'>&copy; 2025 BITA CLOUD INFO TECH PVT LTD. All rights reserved.</p>",
     unsafe_allow_html=True
 )
 
-
-# 3. Floating WhatsApp Widget (using a reliable icon/emoji)
-# We place the CSS and the link in one final block.
-
-whatsapp_html = """
-    <style>
-    /* CSS for the Floating WhatsApp Button */
-    .whatsapp-float {
-        position: fixed;
-        width: 60px;
-        height: 60px;
-        bottom: 40px;
-        right: 40px;
-        background-color: #25d366; 
-        color: #FFF;
-        border-radius: 50px;
-        text-align: center;
-        font-size: 30px;
-        box-shadow: 2px 2px 3px #999;
-        z-index: 10000; 
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-        line-height: 60px; /* Center icon vertically */
-    }
-    .whatsapp-float:hover {
-        background-color: #128C7E;
-    }
-    </style>
-
-    <a href="https://wa.me/918982296014" class="whatsapp-float" target="_blank">
-        &#x1F4F1; </a>
-"""
-st.markdown(whatsapp_html, unsafe_allow_html=True)
-
-st.markdown("""
-    <footer style="background-color: #000; border-top: 1px solid #1f2937; padding: 2rem; text-align: center; color: #6b7280; font-size: 0.875rem;">
-    </footer>
-""", unsafe_allow_html=True)
-
-st.markdown("---") 
-
-# 3. Floating WhatsApp Widget 
-whatsapp_html = """
-    <style>
-    /* CSS for the Floating WhatsApp Button */
-    .whatsapp-float {
-        position: fixed;
-        width: 60px;
-        height: 60px;
-        bottom: 40px;
-        right: 40px;
-        background-color: #25d366; 
-        color: #FFF;
-        border-radius: 50px;
-        text-align: center;
-        font-size: 30px;
-        box-shadow: 2px 2px 3px #999;
-        z-index: 10000; 
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-        line-height: 60px; /* Center icon vertically */
-    }
-    .whatsapp-float:hover {
-        background-color: #128C7E;
-    }
-    </style>
-
-    <a href="https://wa.me/918982296014" class="whatsapp-float" target="_blank">
-        &#x1F4F1; </a>
-"""
-st.markdown(whatsapp_html, unsafe_allow_html=True)
-
-# st.markdown("""
-#     <footer style="background-color: #000; border-top: 1px solid #1f2937; padding: 2rem; text-align: center; color: #6b7280; font-size: 0.875rem;">
-#     </footer>
-# """, unsafe_allow_html=True)
+st.markdown("---")
