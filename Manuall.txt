@@ -2,6 +2,8 @@ username - ssh BITACLOUD@130.107.145.108
 password - India@12345!
 Insideusername - BITACLOUD
 
+cd Streamlit_AI_UX
+
 Git-Install
 
 sudo apt update
@@ -16,5 +18,14 @@ ssh-keygen -t ed25519 -C "tushar.kashyap.bita@gmail.com"
 ssh-
 ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAuBq45lffrpVRzofmsm2uzH4TaCQmmTW0hsprcrqdLY tushar.kashyap.bita@gmail.com
 
+sudo rm -rf ~/Streamlit_AI_UX
 
 git clone git@github.com:tusharz10/Streamlit_AI_UX.git
+source venv/bin/activate
+
+cd Streamlit_AI_UX
+
+
+
+kill all streamlit instacne
+pkill -f streamlit
