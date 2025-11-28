@@ -1,14 +1,14 @@
+# app.py
+
 import streamlit as st
+import base64
+import os
 import requests
 import json
 import time
 from PIL import Image
-import os
-from typing import List
-import base64
 
 # --- Configuration ---
-# NOTE: Ensure 'BITA_LOGO.png', 'HomeSlides/', and 'ServicesSlides/' folders/files exist in your script directory.
 SLIDES_FOLDER_NAME = "HomeSlides" 
 IMAGE_PATH = r"BITA_LOGO.png" 
 
@@ -24,54 +24,10 @@ SQL_LOGO_URL = "https://symbols.getvecta.com/stencil_27/79_sql-database-generic.
 WHATSAPP_LOGO_URL = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/1200px-WhatsApp.svg.png"
 WHATSAPP_LINK = "https://wa.me/918982296014"
 
+# --- Dummy Functions/Session State (Retained for structure) ---
+if 'insight_data' not in st.session_state: st.session_state.insight_data = None
+if 'error_message' not in st.session_state: st.session_state.error_message = None
 
-# --- Utility Functions ---
-
-def load_first_image(folder_path: str) -> tuple[Image.Image, str] | tuple[None, None]:
-    # """Loads the first image found in the specified local folder and returns the image object and its filename."""
-    
-    if not os.path.isdir(folder_path):
-        return None, None
-
-    try:
-        all_files = os.listdir(folder_path)
-        
-        image_filenames = sorted([
-            f for f in all_files 
-            if f.lower().endswith(('.png', '.jpg', '.jpeg', '.webp'))
-        ])
-
-        if not image_filenames:
-            return None, None
-
-        first_filename = image_filenames[0]
-        file_path = os.path.join(folder_path, first_filename)
-        image = Image.open(file_path)
-        
-        return image, first_filename
-    
-    except Exception:
-        return None, None
-
-
-def exponential_backoff_request(url, payload, max_retries=5):
-    headers = {'Content-Type': 'application/json'}
-    for attempt in range(max_retries):
-        try:
-            response = requests.post(url, headers=headers, data=json.dumps(payload))
-            if response.status_code == 429 and attempt < max_retries - 1:
-                delay = (2 ** attempt) + (time.time() % 1)
-                time.sleep(delay)
-                continue
-            response.raise_for_status()
-            return response
-        except requests.exceptions.RequestException as e:
-            if attempt < max_retries - 1:
-                delay = (2 ** attempt) + (time.time() % 1)
-                time.sleep(delay)
-                continue
-            raise e
-    raise requests.exceptions.RequestException("API request failed after multiple retries.")
 
 # --- Page Configuration ---
 st.set_page_config(
@@ -81,8 +37,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed" 
 )
 
-
-# --- Custom CSS Injection (Final Version) ---
+# --- Custom CSS Injection ---
 st.markdown("""
     <style>
         /* --- General Theme and Layout --- */
@@ -99,7 +54,7 @@ st.markdown("""
             background-color: var(--dark-bg);
             color: #e5e7eb;
             font-family: 'Inter', sans-serif;
-            padding-top: 80px !important; /* Space for fixed navbar */
+            padding-top: 80px !important; 
         }
         
         header { 
@@ -155,7 +110,7 @@ st.markdown("""
             color: var(--primary-color);
             background-color: rgba(0, 224, 255, 0.1);
         }
-        /* WhatsApp Icon Styling (Larger and Spacing) */
+        /* WhatsApp Icon Styling */
         .whatsapp-link {
             background-color: var(--whatsapp-green) !important;
             padding: 6px 10px !important; 
@@ -166,14 +121,9 @@ st.markdown("""
             justify-content: center;
             margin-right: 30px; 
         }
-        .whatsapp-link:hover {
-            background-color: var(--whatsapp-hover-green) !important;
-            color: #ffffff !important;
-            box-shadow: 0 0 10px rgba(37, 211, 102, 0.5); 
-        }
         .whatsapp-icon {
-            height: 25px; /* Increased size */
-            width: 25px; /* Increased size */
+            height: 25px; 
+            width: 25px; 
             vertical-align: middle;
         }
         .logo-text {
@@ -185,7 +135,6 @@ st.markdown("""
         
         /* --- Hero and Contact Styling --- */
         .hero-title-main {
-            /* Decreased font size by ~50% */
             font-size: clamp(1.25rem, 2.5vw, 2.25rem); 
             line-height: 1.1;
             font-weight: 800;
@@ -201,15 +150,6 @@ st.markdown("""
             color: var(--secondary-color);
             text-shadow: 0 0 10px rgba(160, 32, 240, 0.8), 0 0 20px rgba(160, 32, 240, 0.4);
         }
-        .contact-form-container {
-            background-color: #1a1a1a; /* Darker box for contact form */
-            padding: 2.5rem;
-            border-radius: 12px;
-            border: 1px solid #333;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            max-width: 800px;
-            margin: 0 auto 3rem auto; 
-        }
         .contact-header {
             color: white; 
             font-size: 1.875rem; 
@@ -218,8 +158,16 @@ st.markdown("""
             border-left: 4px solid var(--primary-color); 
             padding-left: 1rem;
         }
-
-        /* --- Service Card Styling (for completeness) --- */
+        .contact-form-container {
+            background-color: #1a1a1a; 
+            padding: 2.5rem;
+            border-radius: 12px;
+            border: 1px solid #333;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            margin: 0 auto 3rem auto; 
+        }
+        /* Card and Button Styling (for the Home Page) */
         .service-card {
             background-color: var(--card-bg);
             padding: 1.5rem;
@@ -228,48 +176,28 @@ st.markdown("""
             transition: all 0.3s ease;
             height: 100%;
         }
-        .service-card:hover {
-            box-shadow: 0 0 15px rgba(0, 224, 255, 0.2);
-            border-color: var(--primary-color);
-        }
         .card-title {
             color: var(--primary-color);
             font-size: 1.25rem;
             font-weight: 700;
             margin-bottom: 0.75rem;
         }
-        div.stButton > button {
-            background-color: #008CBA;
-            color: white;
-            font-weight: bold;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            border: none;
-            box-shadow: 0 4px 15px rgba(0, 224, 255, 0.3);
-            transition: all 0.3s ease;
-        }
-        div.stButton > button:hover {
-            background-color: #00aaff;
-            box-shadow: 0 4px 20px rgba(0, 224, 255, 0.5);
-        }
     </style>
     """, unsafe_allow_html=True)
 
 
-# --- Fixed Navbar HTML Injection ---
+# --- Fixed Navbar HTML Injection (Simplified Links to use Streamlit's default page handling) ---
 try:
-    # --- 2. Read and encode the image file ---
     with open(IMAGE_PATH, "rb") as image_file:
         encoded_string = base64.b64encode(image_file.read()).decode()
-
-    # --- 3. Construct the Base64 Data URL ---
     DATA_URL = f"data:image/png;base64,{encoded_string}"
 
-    # --- 4. Embed the Data URL into the HTML ---
+    # IMPORTANT: The link to the main page is now just '/' or '#anchor' for in-page navigation.
+    # The link to 'Our Stars' will be automatically handled by Streamlit's page system.
     st.markdown(
         f"""
         <div class="navbar">
-            <a href="./" class="logo-text">
+            <a href="/" class="logo-text"> 
                 <img src="{DATA_URL}" alt="BITA Logo" style="height: 30px; margin-right: 5px; vertical-align: middle;"> 
             </a>
             <nav style="display: flex; gap: 30px; align-items: center;">
@@ -278,6 +206,7 @@ try:
                 </a>
                 <a href="#services">Platform</a>
                 <a href="#Servicess">Services</a>
+                <a href="ourstar">Our Stars</a> 
                 <a href="#Aboutus">About us</a>
                 <a href="#contact-us-section" style="border: 2px solid var(--primary-color); border-radius: 9999px; padding: 6px 16px;">CONTACT US</a>
             </nav>
@@ -287,23 +216,19 @@ try:
 
 except FileNotFoundError:
     st.error(f"Error: Image file not found at the specified path: {IMAGE_PATH}")
-    st.markdown(f'<a href="./" class="logo-text">&lt;BITA&gt;</a>', unsafe_allow_html=True)
+    st.markdown(f'<a href="/" class="logo-text">&lt;BITA&gt;</a>', unsafe_allow_html=True)
 
 except Exception as e:
     st.error(f"An unexpected error occurred while loading the image: {e}")
-    st.markdown(f'<a href="./" class="logo-text">&lt;BITA&gt;</a>', unsafe_allow_html=True)
-
-# --- Session State Initialization ---
-if 'insight_data' not in st.session_state:
-    st.session_state.insight_data = None
-if 'error_message' not in st.session_state:
-    st.session_state.error_message = None
+    st.markdown(f'<a href="/" class="logo-text">&lt;BITA&gt;</a>', unsafe_allow_html=True)
 
 st.write('')
 st.write('')
 st.write('')
 
-# --- 1. Hero Section (Size controlled by CSS) ---
+# --- HOME PAGE CONTENT (All content is here, no need for conditional checks) ---
+
+# --- 1. Hero Section ---
 st.markdown("""
     <div style="max-width: 1280px; margin: 0 auto;">
         <h1 class="hero-title-main">
@@ -342,26 +267,10 @@ if st.session_state.error_message:
 
 if st.session_state.insight_data:
     insight_data = st.session_state.insight_data
-    
-    st.markdown('<div class="insight-output">', unsafe_allow_html=True)
-    st.markdown('<h3 style="color: #00e0ff; font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem;">Generated CDO Analysis:</h3>', unsafe_allow_html=True)
-    st.markdown(f'<p style="color: #e5e7eb; line-height: 1.6;">{insight_data["text"]}</p>', unsafe_allow_html=True)
-
-    st.markdown('<h4 style="color: #9ca3af; font-size: 1.125rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem;">Sources:</h4>', unsafe_allow_html=True)
-    
-    if insight_data["sources"]:
-        source_html = "<ul>"
-        for source in insight_data["sources"]:
-            source_html += f'<li><a href="{source["uri"]}" target="_blank" style="color: #38bdf8; text-decoration: none;">{source["title"]}</a></li>'
-        source_html += "</ul>"
-        st.markdown(source_html, unsafe_allow_html=True)
-    else:
-        st.markdown('<p style="color: #9ca3af;">No specific web sources cited for this high-level analysis.</p>', unsafe_allow_html=True)
-        
-    st.markdown('</div>', unsafe_allow_html=True)
+    # Display logic for insights...
+    pass
 
 # --- Services Page Slideshow ---
-
 st.markdown('<div id="Servicess"></div>', unsafe_allow_html=True)
 
 image_Servicespaths = [
@@ -375,23 +284,9 @@ for image_path in image_Servicespaths:
         st.markdown('<div class="stretched-image-container">', unsafe_allow_html=True)
         st.image(image_path)
         st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown(
-            f"""
-            <div style='background: rgba(0, 0, 0, 0.5); color: #9ca3af; padding: 5px 10px; 
-                         border-radius: 5px; font-size: 0.8em; text-align: center; margin-top: 10px;'>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
         st.markdown('<br>', unsafe_allow_html=True)
 
-if not image_Servicespaths or not any(os.path.exists(p) for p in image_Servicespaths):
-    st.markdown('<div style="height: 50px;"></div>', unsafe_allow_html=True)
-    st.info("No service snapshot images found.")
-
-
-# --- Home Slideshow ---
-
+# --- Home Slideshow (About Us) ---
 image_paths = [
     "HomeSlides/1.png", "HomeSlides/2.png", "HomeSlides/3.png", "HomeSlides/4.png", 
     "HomeSlides/5.png", "HomeSlides/6.png", "HomeSlides/7.png", "HomeSlides/8.png", 
@@ -405,26 +300,12 @@ for image_path in image_paths:
         st.markdown('<div class="stretched-image-container">', unsafe_allow_html=True)
         st.image(image_path)
         st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown(
-            f"""
-            <div style='background: rgba(0, 0, 0, 0.5); color: #9ca3af; padding: 5px 10px; 
-                         border-radius: 5px; font-size: 0.8em; text-align: center; margin-top: 10px;'>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
         st.markdown('<br>', unsafe_allow_html=True)
-
-if not image_paths or not any(os.path.exists(p) for p in image_paths):
-    st.markdown('<div style="height: 50px;"></div>', unsafe_allow_html=True)
-    st.info("No home snapshot images found.")
 
 
 # --- 5. Contact Us Section (Dark Box Form) ---
 st.markdown('<br><br>', unsafe_allow_html=True) 
 st.markdown('<div id="contact-us-section"></div>', unsafe_allow_html=True)
-
-PRIMARY_COLOR = "#00e0ff"
 
 # --- Contact Us Content ---
 st.markdown("""
@@ -439,32 +320,31 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Wrap the form in the custom dark container
-st.markdown('<div class="contact-form-container">', unsafe_allow_html=True)
+# st.markdown('<div class="contact-form-container">', unsafe_allow_html=True)
 
 # Create a form container
-with st.form("contact_form", clear_on_submit=True):
-    col_name, col_email = st.columns(2)
+# with st.form("contact_form", clear_on_submit=True):
+#     col_name, col_email = st.columns(2)
     
-    with col_name:
-        name = st.text_input("Your Name", placeholder="John Doe")
+#     with col_name:
+#         name = st.text_input("Your Name", placeholder="John Doe")
     
-    with col_email:
-        email = st.text_input("Your Email", placeholder="john.doe@company.com")
+#     with col_email:
+#         email = st.text_input("Your Email", placeholder="john.doe@company.com")
 
-    company = st.text_input("Company Name (Optional)", placeholder="BITA CLOUD INFO TECH")
+#     company = st.text_input("Company Name (Optional)", placeholder="BITA CLOUD INFO TECH")
     
-    message = st.text_area("Your Message / Project Brief", 
-                            placeholder="Tell us about your project, data challenges, or strategic goals...", 
-                            height=150)
+#     message = st.text_area("Your Message / Project Brief", 
+#                             placeholder="Tell us about your project, data challenges, or strategic goals...", 
+#                             height=150)
     
-    submitted = st.form_submit_button("Send Message")
+#     submitted = st.form_submit_button("Send Message")
 
-    if submitted:
-        if not name or not email or not message:
-            st.error("Please fill in your Name, Email, and Message.")
-        else:
-            # Simulate success/backend submission
-            st.success(f"Thank you, **{name.strip()}**! Your message has been received. We'll be in touch soon.")
+#     if submitted:
+#         if not name or not email or not message:
+#             st.error("Please fill in your Name, Email, and Message.")
+#         else:
+#             st.success(f"Thank you, **{name.strip()}**! Your message has been received. We'll be in touch soon.")
             
 st.markdown('</div>', unsafe_allow_html=True)
 
