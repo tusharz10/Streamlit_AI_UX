@@ -25,6 +25,7 @@ source venv/bin/activate
 
 cd Streamlit_AI_UX
 
+nohup streamlit run app.py --server.port 8502 --server.address 0.0.0.0 > streamlit.log 2>&1 &
 
 
 kill all streamlit instacne
