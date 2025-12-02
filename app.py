@@ -1,5 +1,3 @@
-# app.py
-
 import streamlit as st
 import base64
 import os
@@ -36,6 +34,26 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed" 
 )
+
+# --- CACHING FUNCTION TO PREVENT CONSTANT RERUNS ---
+# This function performs disk access (os.path.exists and loading the image) 
+# only once per session, which should stop the infinite refresh loop.
+@st.cache_data
+def display_slideshow(image_paths, section_id=None):
+    """Caches the display logic for a set of images to prevent Streamlit reruns."""
+    if section_id:
+        st.markdown(f'<div id="{section_id}"></div>', unsafe_allow_html=True)
+    
+    # Filter for existing paths only once
+    valid_paths = [path for path in image_paths if os.path.exists(path)]
+
+    for image_path in valid_paths:
+        # Load and display the image
+        st.markdown('<div class="stretched-image-container">', unsafe_allow_html=True)
+        st.image(image_path)
+        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('<br>', unsafe_allow_html=True)
+
 
 # --- Custom CSS Injection ---
 st.markdown("""
@@ -270,37 +288,23 @@ if st.session_state.insight_data:
     # Display logic for insights...
     pass
 
-# --- Services Page Slideshow ---
-st.markdown('<div id="Servicess"></div>', unsafe_allow_html=True)
-
+# --- Services Page Slideshow (Now using cached function) ---
 image_Servicespaths = [
     "ServicesSlides/1.png", "ServicesSlides/2.png", "ServicesSlides/3.png", "ServicesSlides/4.png", 
     "ServicesSlides/5.png", "ServicesSlides/6.png", "ServicesSlides/7.png", "ServicesSlides/8.png", 
     "ServicesSlides/9.png", 
 ]
 
-for image_path in image_Servicespaths:
-    if os.path.exists(image_path): 
-        st.markdown('<div class="stretched-image-container">', unsafe_allow_html=True)
-        st.image(image_path)
-        st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown('<br>', unsafe_allow_html=True)
+display_slideshow(image_Servicespaths, section_id="Servicess")
 
-# --- Home Slideshow (About Us) ---
+# --- Home Slideshow (About Us - Now using cached function) ---
 image_paths = [
     "HomeSlides/1.png", "HomeSlides/2.png", "HomeSlides/3.png", "HomeSlides/4.png", 
     "HomeSlides/5.png", "HomeSlides/6.png", "HomeSlides/7.png", "HomeSlides/8.png", 
     "HomeSlides/9.png", "HomeSlides/10.png","HomeSlides/11.png",
 ]
 
-st.markdown('<div id="Aboutus"></div>', unsafe_allow_html=True)
-
-for image_path in image_paths:
-    if os.path.exists(image_path): 
-        st.markdown('<div class="stretched-image-container">', unsafe_allow_html=True)
-        st.image(image_path)
-        st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown('<br>', unsafe_allow_html=True)
+display_slideshow(image_paths, section_id="Aboutus")
 
 
 # --- 5. Contact Us Section (Dark Box Form) ---
@@ -318,35 +322,6 @@ st.markdown("""
         </p>
     </div>
 """, unsafe_allow_html=True)
-
-# Wrap the form in the custom dark container
-# st.markdown('<div class="contact-form-container">', unsafe_allow_html=True)
-
-# Create a form container
-# with st.form("contact_form", clear_on_submit=True):
-#     col_name, col_email = st.columns(2)
-    
-#     with col_name:
-#         name = st.text_input("Your Name", placeholder="John Doe")
-    
-#     with col_email:
-#         email = st.text_input("Your Email", placeholder="john.doe@company.com")
-
-#     company = st.text_input("Company Name (Optional)", placeholder="BITA CLOUD INFO TECH")
-    
-#     message = st.text_area("Your Message / Project Brief", 
-#                             placeholder="Tell us about your project, data challenges, or strategic goals...", 
-#                             height=150)
-    
-#     submitted = st.form_submit_button("Send Message")
-
-#     if submitted:
-#         if not name or not email or not message:
-#             st.error("Please fill in your Name, Email, and Message.")
-#         else:
-#             st.success(f"Thank you, **{name.strip()}**! Your message has been received. We'll be in touch soon.")
-            
-st.markdown('</div>', unsafe_allow_html=True)
 
 # Create separation
 st.markdown('<br><br>', unsafe_allow_html=True) 
@@ -371,3 +346,4 @@ st.markdown(
 )
 
 st.markdown("---")
+# Cleaned up the extraneous user comment from the end of the file.
