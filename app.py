@@ -35,6 +35,18 @@ st.set_page_config(
     initial_sidebar_state="collapsed" 
 )
 
+# --- Disable Sidebar Completely ---
+st.markdown("""
+    <style>
+        section[data-testid="stSidebar"] {
+            display: none !important;
+        }
+        .main {
+            margin-left: 0 !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 # --- CACHING FUNCTION TO PREVENT CONSTANT RERUNS ---
 # This function performs disk access (os.path.exists and loading the image) 
 # only once per session, which should stop the infinite refresh loop.
