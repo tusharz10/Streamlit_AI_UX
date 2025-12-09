@@ -1,0 +1,4 @@
+ticket_id,flight_id,passenger_name,seat_class,price,booking_date,user_id
+CF5F185B,GA101,Samarth Singh Bhati,First,1125.0,2025-12-05 20:06,user_2a3ddaea
+EFF1CF59,GA101,Samarth Singh Bhati,First,1125.0,2025-12-05 20:09,user_2a3ddaea
+FF5E291F,GA101,Samarth Singh Bhati,First,1125.0,2025-12-05 20:10,user_2a3ddaea
