@@ -211,7 +211,7 @@ st.markdown(
         <strong style="color: #00e0ff;">Contact Details:</strong><br>
         Email: <a href="mailto:contact@bitacloudinfotech.com" style="color: #6b7280; text-decoration: none;">contact@bitacloudinfotech.com</a><br>
         Phone: <a href="tel:+918982296014" style="color: #6b7280; text-decoration: none;">+91 89822 96014</a><br>
-        Address: 2-9 Houding board neva road bundi rajasthan
+        Address: Nainwa Road, Bundi, Rajasthan – 323001, India
     </div>
     """,
     unsafe_allow_html=True
