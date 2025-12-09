@@ -22,6 +22,18 @@ st.set_page_config(
     initial_sidebar_state="collapsed" 
 )
 
+# --- Disable Sidebar Completely ---
+st.markdown("""
+    <style>
+        section[data-testid="stSidebar"] {
+            display: none !important;
+        }
+        .main {
+            margin-left: 0 !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 # --- Custom CSS Injection (To maintain header styling) ---
 # NOTE: To ensure the header displays correctly on this page, the CSS must be included here too.
 
