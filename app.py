@@ -206,9 +206,10 @@ st.markdown("""
 
 # --- Fixed Navbar HTML Injection (Simplified Links to use Streamlit's default page handling) ---
 try:
-    with open(IMAGE_PATH, "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read()).decode()
-    DATA_URL = f"data:image/png;base64,{encoded_string}"
+    # with open(IMAGE_PATH, "rb") as image_file:
+    #     encoded_string = base64.b64encode(image_file.read()).decode()
+    # # DATA_URL = f"data:image/png;base64,{encoded_string}"
+    DATA_URL = "https://avatars.githubusercontent.com/u/155072885?s=400&u=84df3d271a3b57a9d3e602d49f25635f8e6f2001&v=4"
 
     # IMPORTANT: The link to the main page is now just '/' or '#anchor' for in-page navigation.
     # The link to 'Our Stars' will be automatically handled by Streamlit's page system.
