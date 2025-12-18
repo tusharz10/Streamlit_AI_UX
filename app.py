@@ -308,7 +308,7 @@ image_Servicespaths = [
     "ServicesSlides/9.png", 
 ]
 
-display_slideshow(image_Servicespaths, section_id="Servicess")
+# display_slideshow(image_Servicespaths, section_id="Servicess")
 
 # --- Home Slideshow (About Us - Now using cached function) ---
 image_paths = [
@@ -319,6 +319,7 @@ image_paths = [
 
 display_slideshow(image_paths, section_id="Aboutus")
 
+st.markdown('<div id="Servicess"></div>', unsafe_allow_html=True)
 
 # --- 5. Contact Us Section (Dark Box Form) ---
 st.markdown('<br><br>', unsafe_allow_html=True) 
