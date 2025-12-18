@@ -331,7 +331,7 @@ st.markdown("""
             🤝 Get in Touch
         </h2>
         <p style="color: #9ca3af; margin-bottom: 2rem; max-width: 600px;">
-            Ready to start a project or need expert advice on your data architecture? Fill out the form below, and our team will connect with you shortly.
+            Ready to start a project or need expert advice on your data architecture? Connect with us today.
         </p>
     </div>
 """, unsafe_allow_html=True)
