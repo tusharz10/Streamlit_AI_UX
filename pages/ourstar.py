@@ -209,7 +209,7 @@ st.markdown(
     """
     <div style="text-align: center; color: #e5e7eb; padding: 1rem 0; background-color: #000; border-top: 1px solid #1f2937;">
         <strong style="color: #00e0ff;">Contact Details:</strong><br>
-        Email: <a href="mailto:contact@bitacloudinfotech.com" style="color: #6b7280; text-decoration: none;">contact@bitacloudinfotech.com</a><br>
+        Email: <a href="mailto:connect@bitacloudinfotech.com" style="color: #6b7280; text-decoration: none;">connect@bitacloudinfotech.com</a><br>
         Phone: <a href="tel:+918982296014" style="color: #6b7280; text-decoration: none;">+91 89822 96014</a><br>
         Address: Nainwa Road, Bundi, Rajasthan – 323001, India
     </div>
