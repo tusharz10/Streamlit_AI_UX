@@ -1,0 +1,101 @@
+name: Deploy with Full Health Recovery
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy with Auto Recovery + Health Check
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+
+            echo "🚀 DEPLOY STARTED (AUTO RECOVERY MODE)"
+
+            # =========================
+            # NODE SETUP
+            # =========================
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+            nvm use 20
+
+            node -v
+            npm -v
+
+            # =========================
+            # CODE UPDATE
+            # =========================
+            cd ~/Estore
+            git pull origin main
+
+            # =========================
+            # BACKEND FIX
+            # =========================
+            cd server
+            npm install
+
+            export PATH=$PATH:/usr/local/bin:/home/Demo/.npm-global/bin
+
+            pm2 reload backend || pm2 start app.js --name backend
+
+            # =========================
+            # FRONTEND BUILD
+            # =========================
+            cd ../client
+            npm install
+            npm run build
+
+            # =========================
+            # DEPLOY FRONTEND SAFELY
+            # =========================
+            rm -rf /home/Demo/Estore/client/dist_new
+            cp -r dist /home/Demo/Estore/client/dist_new
+            rm -rf /home/Demo/Estore/client/dist
+            mv /home/Demo/Estore/client/dist_new /home/Demo/Estore/client/dist
+
+            # =========================
+            # 🔥 FIX NGINX (CRITICAL FIX)
+            # =========================
+            echo "🔧 CHECKING NGINX STATUS..."
+
+            if ! systemctl is-active --quiet nginx; then
+              echo "⚠️ NGINX IS DOWN → STARTING IT..."
+              sudo systemctl start nginx
+            else
+              echo "✅ NGINX IS RUNNING → RELOADING"
+              sudo systemctl reload nginx
+            fi
+
+            # =========================
+            # HEALTH CHECK
+            # =========================
+            echo "🔍 CHECKING WEBSITE STATUS..."
+
+            HTTP_STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost)
+
+            echo "HTTP STATUS: $HTTP_STATUS"
+
+            if [ "$HTTP_STATUS" -ne 200 ]; then
+              echo "❌ WEBSITE NOT LIVE"
+
+              echo "📌 NGINX STATUS:"
+              systemctl status nginx --no-pager
+
+              echo "📌 PM2 STATUS:"
+              pm2 list
+
+              echo "📌 PORT CHECK:"
+              sudo ss -tulpn | grep :80 || true
+
+              exit 1
+            else
+              echo "🎉 WEBSITE IS LIVE & HEALTHY (HTTP 200)"
+            fi

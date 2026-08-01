@@ -1,0 +1,56 @@
+username - ssh BITACLOUD@130.107.145.108
+password - India@12345!
+Insideusername - BITACLOUD
+
+NameCheap VPS server
+
+ssh root@159.198.45.220
+pzgNj72oK89d66QHMX
+
+
+
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPVor9S2qXaKVtMuT5VDbvdMGbJ18q6BY7VZiCciWrTO tushar.kashyap.bita@gmail.com
+
+clone git
+
+cd ~
+rm -rf Streamlit_AI_UX
+git clone git@github.com:tusharz10/Streamlit_AI_UX.git
+cd Streamlit_AI_UX
+
+
+cd ~/Streamlit_AI_UX
+source venv/bin/activate
+pkill -f streamlit
+nohup streamlit run app.py --server.address 127.0.0.1 --server.port 8501 > streamlit.log 2>&1 &
+
+##########################################################
+
+cd Streamlit_AI_UX
+
+Git-Install
+
+sudo apt update
+sudo apt install git -y
+
+git config --global user.name "tusharz10"
+git config --global user.email "tushar.kashyap.bita@gmail.com"
+
+ssh-keygen -t ed25519 -C "tushar.kashyap.bita@gmail.com"
+
+
+ssh-
+ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAuBq45lffrpVRzofmsm2uzH4TaCQmmTW0hsprcrqdLY tushar.kashyap.bita@gmail.com
+
+sudo rm -rf ~/Streamlit_AI_UX
+
+git clone git@github.com:tusharz10/Streamlit_AI_UX.git
+source venv/bin/activate
+
+cd Streamlit_AI_UX
+
+nohup streamlit run app.py --server.port 8502 --server.address 0.0.0.0 > streamlit.log 2>&1 &
+
+
+kill all streamlit instacne
+pkill -f streamlit

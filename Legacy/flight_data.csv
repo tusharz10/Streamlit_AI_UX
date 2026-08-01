@@ -1,0 +1,5 @@
+id,departure,arrival,date,time,price,seats_available,aircraft
+GA101,SFO,JFK,2025-12-12,08:00,450.0,148,Airbus A320
+GA202,LAX,MIA,2025-12-15,14:30,320.5,95,Boeing 737 MAX
+GA303,JFK,SFO,2025-12-13,20:00,510.0,200,Boeing 777
+GA404,BOS,LAX,2025-12-20,11:00,380.75,70,Embraer 190
