@@ -7,43 +7,37 @@ const industryVerticals = [
     id: 'healthcare',
     title: 'Healthcare & Life Sciences',
     icon: HeartPulse,
-    desc: 'HIPAA-compliant data pipelines, clinical trial analytics, and real-time patient care dashboards.',
-    stat: '99.99% Compliance'
+    desc: 'HIPAA-compliant data pipelines, clinical trial analytics, and real-time patient care dashboards.'
   },
   {
     id: 'finance',
     title: 'Banking & Financial Services',
     icon: Landmark,
-    desc: 'Ultra-low latency transaction indexing, fraud risk models, and automated compliance reporting.',
-    stat: '<10ms Processing'
+    desc: 'Ultra-low latency transaction indexing, fraud risk models, and automated compliance reporting.'
   },
   {
     id: 'retail',
     title: 'Retail & Consumer Goods',
     icon: ShoppingBag,
-    desc: 'Omnichannel inventory forecasting, customer lifetime value modeling, and supply chain ETL.',
-    stat: '35% ROI Increase'
+    desc: 'Omnichannel inventory forecasting, customer lifetime value modeling, and supply chain ETL.'
   },
   {
     id: 'manufacturing',
     title: 'Industrial & Manufacturing',
     icon: Factory,
-    desc: 'IoT telemetry ingestion, predictive equipment maintenance, and factory floor BI insights.',
-    stat: '10M+ Daily Signals'
+    desc: 'IoT telemetry ingestion, predictive equipment maintenance, and factory floor BI insights.'
   },
   {
     id: 'automotive',
     title: 'Automotive & Mobility',
     icon: Car,
-    desc: 'Connected vehicle telemetry lakehouse, fleet management, and automated diagnostics.',
-    stat: 'Real-Time Streaming'
+    desc: 'Connected vehicle telemetry lakehouse, fleet management, and automated diagnostics.'
   },
   {
     id: 'energy',
     title: 'Energy & Smart Utilities',
     icon: Zap,
-    desc: 'Smart grid load balancing, renewable energy predictive models, and power usage analytics.',
-    stat: 'Zero Downtime'
+    desc: 'Smart grid load balancing, renewable energy predictive models, and power usage analytics.'
   }
 ];
 
@@ -73,9 +67,6 @@ export default function IndustriesSection() {
                   <div className="w-12 h-12 rounded-xl theme-bg-secondary text-[#a3e635] flex items-center justify-center group-hover:bg-[#a3e635] group-hover:text-[#07090e] transition-colors border theme-border">
                     <ind.icon className="w-6 h-6" />
                   </div>
-                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#a3e635]">
-                    {ind.stat}
-                  </span>
                 </div>
 
                 <div className="space-y-2">
