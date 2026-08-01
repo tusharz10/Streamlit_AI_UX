@@ -58,12 +58,12 @@ export default function CertifiedTeamSection() {
     <section className="section-padding theme-bg-secondary border-y theme-border" id="certified-teams">
       <div className="container">
         {/* Section Header */}
-        <div className="max-w-3xl mb-16 space-y-4">
+        <div className="max-w-5xl mb-16 space-y-4">
           <div className="section-badge-master">
             <Award className="w-4 h-4 text-[#a3e635]" />
             <span>Certified Developer Teams</span>
           </div>
-          <h2 className="section-title-master theme-text-primary">
+          <h2 className="section-title-master theme-text-primary sm:whitespace-nowrap">
             We Have <span className="text-[#a3e635] bg-[var(--bg-secondary)] border theme-border px-2.5 py-0.5 rounded">Certified Developer Teams</span>
           </h2>
           <p className="section-subtitle-master theme-text-secondary">

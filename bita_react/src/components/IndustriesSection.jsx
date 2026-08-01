@@ -52,11 +52,11 @@ export default function IndustriesSection() {
     <section className="section-padding theme-bg-primary border-y theme-border" id="industries">
       <div className="container">
         {/* Section Header */}
-        <div className="max-w-3xl mb-16 space-y-4">
+        <div className="max-w-5xl mb-16 space-y-4">
           <div className="section-badge-master">
             <span>Industry Verticals</span>
           </div>
-          <h2 className="section-title-master theme-text-primary">
+          <h2 className="section-title-master theme-text-primary sm:whitespace-nowrap">
             Tailored Engineering for <span className="text-[#a3e635] bg-[var(--bg-secondary)] border theme-border px-2 py-0.5 rounded">Global Industries</span>
           </h2>
           <p className="section-subtitle-master theme-text-secondary">

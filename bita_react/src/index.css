@@ -226,10 +226,10 @@ h1, h2, h3, .font-heading {
 }
 
 .section-title-master {
-  font-size: 3.5rem;
+  font-size: clamp(1.75rem, 3.5vw, 3rem);
   font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.04em;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
   color: var(--text-primary);
   margin-bottom: 1.25rem;
 }

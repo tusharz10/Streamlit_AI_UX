@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { CheckCircle2, X, ArrowRight, ShieldCheck } from 'lucide-react';
 import Tilt3DCard from './3d/Tilt3DCard';
-import TechStack3DOrbit from './3d/TechStack3DOrbit';
 
 const techPlatforms = [
   {
@@ -87,44 +86,36 @@ const techPlatforms = [
 export default function PlatformGrid() {
   const [selectedTech, setSelectedTech] = useState(null);
 
-  const handleSelectFrom3D = (techItem) => {
-    const found = techPlatforms.find(t => t.id === techItem.id);
-    if (found) setSelectedTech(found);
-  };
-
   return (
     <section className="section-padding theme-bg-secondary border-y theme-border" id="services">
       <div className="container">
         {/* Section Header */}
-        <div className="max-w-3xl mb-16 space-y-4">
+        <div className="max-w-5xl mb-16 space-y-4">
           <div className="section-badge-master">
             <span>Capabilities & Stack</span>
           </div>
-          <h2 className="section-title-master theme-text-primary">
-            Real SVG <span className="text-[#a3e635] bg-[var(--bg-primary)] border theme-border px-2 py-0.5 rounded">Technology Stack</span>
+          <h2 className="section-title-master theme-text-primary sm:whitespace-nowrap">
+            Enterprise <span className="text-[var(--accent-lime)] bg-[var(--bg-primary)] border theme-border px-2 py-0.5 rounded">Azure Data & AI Stack</span>
           </h2>
           <p className="section-subtitle-master theme-text-secondary">
-            End-to-end cloud data engineering, AI model deployment, and real-time visualization built with production-proven tools.
+            Production-proven Azure cloud data engineering, Microsoft Fabric lakehouses, Power BI analytics, and enterprise AI models.
           </p>
         </div>
 
-        {/* 3D Orbit Stage */}
-        <TechStack3DOrbit onSelectTech={handleSelectFrom3D} />
-
         {/* Services Editorial Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {techPlatforms.map((tech) => (
             <Tilt3DCard
-              key={tech.id} 
+              key={tech.id}
               className="master-card p-8 flex flex-col justify-between group cursor-pointer"
               onClick={() => setSelectedTech(tech)}
             >
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div className="w-14 h-14 rounded-2xl theme-bg-secondary border theme-border p-2.5 flex items-center justify-center group-hover:scale-105 transition-transform">
-                    <img 
-                      src={tech.icon} 
-                      alt={tech.title} 
+                    <img
+                      src={tech.icon}
+                      alt={tech.title}
                       className="w-full h-full object-contain"
                     />
                   </div>
@@ -158,7 +149,7 @@ export default function PlatformGrid() {
       {selectedTech && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn theme-text-primary">
           <Tilt3DCard className="master-card max-w-xl w-full p-8 relative theme-bg-primary border theme-border">
-            <button 
+            <button
               onClick={() => setSelectedTech(null)}
               className="absolute top-4 right-4 p-2 theme-text-secondary hover:theme-text-primary rounded-md theme-bg-secondary border theme-border"
             >
@@ -192,14 +183,14 @@ export default function PlatformGrid() {
             </div>
 
             <div className="flex justify-end gap-3">
-              <button 
+              <button
                 onClick={() => setSelectedTech(null)}
                 className="btn-master-secondary text-xs py-2.5 px-4"
               >
                 Close Spec
               </button>
-              <a 
-                href="#contact" 
+              <a
+                href="#contact"
                 onClick={() => setSelectedTech(null)}
                 className="btn-master-primary text-xs py-2.5 px-4"
               >

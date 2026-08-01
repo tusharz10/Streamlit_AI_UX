@@ -1,9 +1,15 @@
 import React from 'react';
-import { Quote, Building2, ShieldCheck } from 'lucide-react';
+import { Quote, ShieldCheck } from 'lucide-react';
 import Tilt3DCard from './3d/Tilt3DCard';
 
 const partners = [
-  'Microsoft Azure', 'Power BI', 'Databricks', 'SQL Server', 'Azure Data Factory', 'Microsoft Fabric'
+  { name: 'Microsoft Azure', icon: '/assets/tech/azure.svg' },
+  { name: 'Power BI', icon: '/assets/tech/powerbi.svg' },
+  { name: 'Databricks', icon: '/assets/tech/databricks.svg' },
+  { name: 'SQL Server', icon: '/assets/tech/sql.svg' },
+  { name: 'Azure Data Factory', icon: '/assets/tech/azure.svg' },
+  { name: 'Microsoft Fabric', icon: '/assets/tech/fabric.svg' },
+  { name: 'OpenAI', icon: '/assets/tech/openai.svg' }
 ];
 
 const testimonials = [
@@ -36,14 +42,18 @@ export default function TestimonialsPartners() {
           <span className="text-xs font-mono uppercase tracking-[2px] theme-text-muted font-bold">
             Trusted Enterprise Ecosystem & Partners
           </span>
-          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16">
+          <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
             {partners.map((partner, idx) => (
-              <div 
-                key={idx} 
-                className="flex items-center gap-2 text-xl font-heading font-extrabold theme-text-primary hover:text-[var(--accent-lime)] transition-colors cursor-pointer"
+              <div
+                key={idx}
+                className="flex items-center gap-3 px-4 py-2.5 rounded-xl theme-bg-secondary border theme-border hover:border-[var(--accent-lime)] transition-all cursor-pointer group shadow-sm"
               >
-                <Building2 className="w-5 h-5 text-[var(--accent-lime)]" />
-                <span>{partner}</span>
+                <div className="w-7 h-7 shrink-0 flex items-center justify-center p-1 rounded-lg bg-[var(--bg-primary)] border theme-border group-hover:scale-110 transition-transform">
+                  <img src={partner.icon} alt={partner.name} className="w-full h-full object-contain drop-shadow-sm" />
+                </div>
+                <span className="text-sm sm:text-base font-heading font-extrabold theme-text-primary group-hover:text-[var(--accent-lime)] transition-colors">
+                  {partner.name}
+                </span>
               </div>
             ))}
           </div>
