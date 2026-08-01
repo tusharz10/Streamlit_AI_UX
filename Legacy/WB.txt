@@ -1,2 +1,0 @@
-cd Streamlit_AIUX  
-streamlit run WB.py

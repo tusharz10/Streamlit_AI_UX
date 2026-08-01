@@ -59,15 +59,15 @@ export default function TechStack3DOrbit({ onSelectTech }) {
   const [activeTech, setActiveTech] = useState(techList[0]);
 
   return (
-    <div className="w-full my-12 text-white">
+    <div className="w-full my-12 theme-text-primary">
       <div className="text-center mb-8">
-        <span className="text-xs font-mono uppercase tracking-widest text-[#a3e635] font-bold">
+        <span className="text-xs font-mono uppercase tracking-widest text-[var(--accent-lime)] font-bold">
           3D Interactive Technology Stage
         </span>
-        <h3 className="font-heading text-2xl sm:text-3xl font-bold text-white mt-1">
-          Floating <span className="text-[#a3e635] bg-white/10 px-2 py-0.5 rounded">Real SVG Tech Spheres</span>
+        <h3 className="font-heading text-2xl sm:text-3xl font-bold theme-text-primary mt-1">
+          Floating <span className="text-[var(--accent-lime)] bg-[var(--bg-secondary)] border theme-border px-2 py-0.5 rounded">Real SVG Tech Spheres</span>
         </h3>
-        <p className="text-[#e2e8f0] text-sm max-w-xl mx-auto mt-2 font-normal">
+        <p className="theme-text-secondary text-sm max-w-xl mx-auto mt-2 font-normal">
           Click any 3D technology sphere to inspect technical specifications and pipeline integrations.
         </p>
       </div>
@@ -84,10 +84,10 @@ export default function TechStack3DOrbit({ onSelectTech }) {
                   setActiveTech(item);
                   if (onSelectTech) onSelectTech(item);
                 }}
-                className={`p-5 rounded-xl bg-slate-900/90 border cursor-pointer transition-all duration-300 ${
+                className={`master-card p-5 cursor-pointer transition-all duration-300 ${
                   isActive
-                    ? 'border-[#a3e635] ring-2 ring-[#a3e635] shadow-2xl scale-105'
-                    : 'border-white/10 hover:border-[#a3e635] opacity-85 hover:opacity-100'
+                    ? 'border-[var(--accent-lime)] ring-2 ring-[var(--accent-lime)] shadow-2xl scale-105'
+                    : 'hover:border-[var(--accent-lime)] opacity-90 hover:opacity-100'
                 }`}
               >
                 <div className="flex flex-col items-center text-center space-y-3">
@@ -95,7 +95,7 @@ export default function TechStack3DOrbit({ onSelectTech }) {
                   <div 
                     className="w-16 h-16 rounded-full p-3 flex items-center justify-center relative shadow-md transition-transform duration-500 animate-float"
                     style={{ 
-                      background: `radial-gradient(circle at 35% 35%, ${item.color}33, #0f172a)`,
+                      background: `radial-gradient(circle at 35% 35%, ${item.color}33, var(--bg-secondary))`,
                       border: `1px solid ${item.color}aa`,
                       boxShadow: `0 0 20px ${item.glow}`,
                       animationDelay: `${techList.indexOf(item) * 0.4}s`
@@ -109,10 +109,10 @@ export default function TechStack3DOrbit({ onSelectTech }) {
                   </div>
 
                   <div>
-                    <span className="text-[10px] font-mono text-[#a3e635] uppercase tracking-wider block font-bold">
+                    <span className="text-[10px] font-mono text-[var(--accent-lime)] uppercase tracking-wider block font-bold">
                       {item.badge}
                     </span>
-                    <h4 className="font-heading font-bold text-sm text-white mt-0.5">
+                    <h4 className="font-heading font-bold text-sm theme-text-primary mt-0.5">
                       {item.title}
                     </h4>
                   </div>
@@ -124,30 +124,30 @@ export default function TechStack3DOrbit({ onSelectTech }) {
 
         {/* Right Column Active 3D Focus Panel */}
         <div className="lg:col-span-5">
-          <Tilt3DCard className="master-card p-7 border-white/10 relative bg-slate-950/90 text-white">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+          <Tilt3DCard className="master-card p-7 relative">
+            <div className="flex items-center justify-between border-b theme-border pb-4 mb-4">
               <div className="flex items-center gap-3">
                 <div 
-                  className="w-12 h-12 rounded-xl p-2.5 flex items-center justify-center shadow-sm bg-slate-900 border border-white/10"
+                  className="w-12 h-12 rounded-xl p-2.5 flex items-center justify-center shadow-sm theme-bg-secondary border theme-border"
                 >
                   <img src={activeTech.icon} alt={activeTech.title} className="w-full h-full object-contain" />
                 </div>
                 <div>
-                  <span className="text-[10px] font-mono text-[#94a3b8] uppercase tracking-widest block font-bold">
+                  <span className="text-[10px] font-mono theme-text-muted uppercase tracking-widest block font-bold">
                     {activeTech.category}
                   </span>
-                  <h4 className="font-heading text-lg font-bold text-white">
+                  <h4 className="font-heading text-lg font-bold theme-text-primary">
                     {activeTech.title}
                   </h4>
                 </div>
               </div>
 
-              <span className="text-[10px] font-mono px-2.5 py-1 rounded bg-[#a3e635] text-[#07090e] font-extrabold">
+              <span className="text-[10px] font-mono px-2.5 py-1 rounded bg-[var(--accent-lime)] text-[#07090e] font-extrabold">
                 ACTIVE FOCUS
               </span>
             </div>
 
-            <p className="text-[#e2e8f0] text-sm leading-relaxed mb-6 font-normal">
+            <p className="theme-text-secondary text-sm leading-relaxed mb-6 font-normal">
               {activeTech.desc}
             </p>
 
