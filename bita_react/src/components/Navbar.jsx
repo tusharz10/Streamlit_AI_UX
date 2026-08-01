@@ -67,8 +67,8 @@ export default function Navbar() {
       <div className="container flex items-center justify-between">
         {/* Brand Logo */}
         <a href="#" className="flex items-center gap-3 group text-decoration-none">
-          <div className="w-9 h-9 rounded-md bg-[#a3e635] text-[#07090e] font-extrabold flex items-center justify-center text-base shadow-md group-hover:scale-105 transition-transform">
-            B
+          <div className="w-10 h-10 rounded-xl theme-bg-secondary border theme-border p-1 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform overflow-hidden">
+            <img src="/Bitacloudinfotechtransparent.png" alt="BITA Cloud Info Tech" className="w-full h-full object-contain" />
           </div>
           <div className="flex flex-col">
             <span className="font-heading font-extrabold text-xl tracking-tight text-[var(--text-primary)]">

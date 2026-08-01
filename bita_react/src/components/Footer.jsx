@@ -14,8 +14,8 @@ export default function Footer() {
           {/* Column 1: Brand */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded bg-[var(--accent-lime)] text-[#07090e] font-bold flex items-center justify-center text-sm">
-                B
+              <div className="w-10 h-10 rounded-xl theme-bg-primary border theme-border p-1 flex items-center justify-center shadow-md overflow-hidden">
+                <img src="/android-chrome-192x192.png" alt="BITA Cloud Info Tech" className="w-full h-full object-contain" />
               </div>
               <span className="font-heading font-extrabold text-xl tracking-tight theme-text-primary">
                 BITA <span className="text-[var(--accent-lime)]">CLOUD</span> INFO TECH

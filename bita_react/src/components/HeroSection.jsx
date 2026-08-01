@@ -1,13 +1,13 @@
 import React from 'react';
-import { ArrowRight, Award, ShieldCheck, CheckCircle2 } from 'lucide-react';
-import HeroVideoStage from './HeroVideoStage';
+import { ArrowRight, Award, ShieldCheck, CheckCircle2, Cpu, Database, Server, Sparkles } from 'lucide-react';
+import Tilt3DCard from './3d/Tilt3DCard';
 
 export default function HeroSection() {
   return (
     <section className="relative min-h-screen pt-36 pb-20 lg:pt-44 lg:pb-32 flex items-center overflow-hidden theme-bg-primary" id="hero">
-      <div className="container grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-        {/* Left Column Text Content */}
-        <div className="lg:col-span-6 space-y-8 relative z-10">
+      <div className="container">
+        {/* Main Hero Expanded Header Content */}
+        <div className="max-w-5xl space-y-8 relative z-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full theme-bg-secondary border theme-border theme-text-primary text-xs font-semibold uppercase tracking-[2px]">
             <Award className="w-4 h-4 text-[#a3e635] p-0.5 rounded-full" />
             <span className="theme-text-primary font-bold">Certified Engineering & Developer Teams</span>
@@ -17,7 +17,7 @@ export default function HeroSection() {
             Engineering the Future Through <span className="underline decoration-[#a3e635] decoration-wavy decoration-2 text-[#a3e635]">AI & Cloud</span>.
           </h1>
 
-          <p className="theme-text-secondary text-lg sm:text-xl leading-relaxed max-w-2xl font-normal">
+          <p className="theme-text-secondary text-lg sm:text-xl leading-relaxed max-w-4xl font-normal">
             Building Intelligent Digital Products That Scale Globally. <strong className="theme-text-primary font-semibold">BITA CLOUD INFO TECH</strong> empowers enterprise leadership with automated cloud data pipelines, real-time Power BI reporting, and custom software systems.
           </p>
 
@@ -42,28 +42,44 @@ export default function HeroSection() {
             </a>
           </div>
 
-          {/* Official Microsoft & Cloud Badges Trust Ribbon */}
-          <div className="pt-8 border-t theme-border space-y-3">
-            <span className="text-xs font-mono theme-text-secondary uppercase tracking-widest font-bold block">
-              Official Certified Engineering Credentials
-            </span>
-            <div className="flex flex-wrap items-center gap-4">
-              {[1, 2, 3, 4, 5, 6].map((num) => (
-                <div key={num} className="w-12 h-12 rounded-xl theme-bg-secondary border theme-border p-1.5 flex items-center justify-center hover:scale-110 transition-transform shadow-md">
-                  <img src={`/badges/${num}.svg`} alt={`Official Badge ${num}`} className="w-full h-full object-contain" />
-                </div>
-              ))}
-              <div className="flex items-center gap-1.5 text-xs font-mono text-[#a3e635] font-bold ml-2">
-                <CheckCircle2 className="w-4 h-4 text-[#a3e635] bg-black/20 rounded-full p-0.5" />
-                <span>100% Certified Team</span>
+          {/* Expanded 3 Pillar Feature Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+            <Tilt3DCard className="master-card p-6 space-y-3">
+              <div className="w-10 h-10 rounded-xl theme-bg-secondary border theme-border text-[#a3e635] flex items-center justify-center">
+                <Server className="w-5 h-5" />
               </div>
-            </div>
-          </div>
-        </div>
+              <h3 className="font-heading text-lg font-bold theme-text-primary">
+                Automated Cloud ETL
+              </h3>
+              <p className="theme-text-secondary text-xs leading-relaxed">
+                Azure Data Factory pipelines with self-hosted integration runtimes for high-speed automated data movement.
+              </p>
+            </Tilt3DCard>
 
-        {/* Right Column Attention-Grabbing MP4 Video Stage */}
-        <div className="lg:col-span-6 relative">
-          <HeroVideoStage />
+            <Tilt3DCard className="master-card p-6 space-y-3">
+              <div className="w-10 h-10 rounded-xl theme-bg-secondary border theme-border text-[#a3e635] flex items-center justify-center">
+                <Database className="w-5 h-5" />
+              </div>
+              <h3 className="font-heading text-lg font-bold theme-text-primary">
+                Fabric Lakehouses
+              </h3>
+              <p className="theme-text-secondary text-xs leading-relaxed">
+                Unified OneLake datasets with Direct Lake mode for instant zero-copy query execution and Power BI reports.
+              </p>
+            </Tilt3DCard>
+
+            <Tilt3DCard className="master-card p-6 space-y-3">
+              <div className="w-10 h-10 rounded-xl theme-bg-secondary border theme-border text-[#a3e635] flex items-center justify-center">
+                <Cpu className="w-5 h-5" />
+              </div>
+              <h3 className="font-heading text-lg font-bold theme-text-primary">
+                Enterprise AI Agents
+              </h3>
+              <p className="theme-text-secondary text-xs leading-relaxed">
+                Azure OpenAI GPT-4o LLM agentic workflows, PySpark Databricks model inference, & custom AI data intelligence.
+              </p>
+            </Tilt3DCard>
+          </div>
         </div>
       </div>
     </section>
