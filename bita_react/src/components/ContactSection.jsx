@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send, MessageSquare, CheckCircle2 } from 'lucide-react';
+import { Mail, Phone, MapPin, MessageSquare, CheckCircle2 } from 'lucide-react';
+import Tilt3DCard from './3d/Tilt3DCard';
 
 export default function ContactSection() {
   const [formData, setFormData] = useState({
@@ -24,95 +25,94 @@ export default function ContactSection() {
   };
 
   return (
-    <section className="section-padding relative bg-slate-950/80 border-t border-slate-800/80" id="contact">
+    <section className="section-padding bg-[#07090e] text-white" id="contact">
       <div className="container">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <div className="section-badge mx-auto">
-            <MessageSquare className="w-4 h-4 text-cyan-400" />
-            <span>Get In Touch</span>
+        <div className="max-w-3xl mb-16 space-y-4">
+          <div className="section-badge-master">
+            <span>Corporate Contact</span>
           </div>
-          <h2 className="section-title text-white">
-            Start Your <span className="gradient-text-cyan">Cloud & Data Consultation</span>
+          <h2 className="section-title-master text-white">
+            Start Your <span className="text-[#a3e635] bg-white/10 px-2 py-0.5 rounded">Enterprise Engagement</span>
           </h2>
-          <p className="section-subtitle mx-auto">
-            Connect directly with our engineering team to discuss your software, ETL pipelines, or Power BI reporting needs.
+          <p className="section-subtitle-master text-[#e2e8f0]">
+            Connect directly with our engineering leadership to discuss software modernization, pipeline architecture, or Power BI reporting.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left Column Contact Cards */}
+          {/* Left Cards */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="glass-panel p-6 flex items-center gap-4 hover:border-cyan-500/40 transition-all">
-              <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 shrink-0">
+            <Tilt3DCard className="master-card p-6 flex items-center gap-4 bg-slate-900/80 border-white/10">
+              <div className="w-12 h-12 rounded-xl bg-white/10 text-[#a3e635] flex items-center justify-center shrink-0">
                 <MapPin className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="font-heading text-lg font-bold text-white">Office Location</h4>
-                <p className="text-slate-400 text-sm">BITA CLOUD INFO TECH Services</p>
+                <h4 className="font-heading text-lg font-bold text-white">Corporate Headquarters</h4>
+                <p className="text-[#e2e8f0] text-sm">BITA CLOUD INFO TECH Services</p>
               </div>
-            </div>
+            </Tilt3DCard>
 
-            <div className="glass-panel p-6 flex items-center gap-4 hover:border-emerald-500/40 transition-all">
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+            <Tilt3DCard className="master-card p-6 flex items-center gap-4 bg-slate-900/80 border-white/10">
+              <div className="w-12 h-12 rounded-xl bg-white/10 text-[#a3e635] flex items-center justify-center shrink-0">
                 <Phone className="w-6 h-6" />
               </div>
               <div>
                 <h4 className="font-heading text-lg font-bold text-white">Direct WhatsApp / Phone</h4>
-                <a href="https://wa.me/918982296014" target="_blank" rel="noopener noreferrer" className="text-emerald-400 font-mono text-sm hover:underline">
+                <a href="https://wa.me/918982296014" target="_blank" rel="noopener noreferrer" className="text-[#a3e635] font-mono text-sm hover:underline font-bold">
                   +91 89822 96014
                 </a>
               </div>
-            </div>
+            </Tilt3DCard>
 
-            <div className="glass-panel p-6 flex items-center gap-4 hover:border-purple-500/40 transition-all">
-              <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0">
+            <Tilt3DCard className="master-card p-6 flex items-center gap-4 bg-slate-900/80 border-white/10">
+              <div className="w-12 h-12 rounded-xl bg-white/10 text-[#a3e635] flex items-center justify-center shrink-0">
                 <Mail className="w-6 h-6" />
               </div>
               <div>
-                <h4 className="font-heading text-lg font-bold text-white">Email Support</h4>
-                <a href="mailto:tushar.kashyap.bita@gmail.com" className="text-purple-400 font-mono text-sm hover:underline">
+                <h4 className="font-heading text-lg font-bold text-white">Email Consultation</h4>
+                <a href="mailto:tushar.kashyap.bita@gmail.com" className="text-[#a3e635] font-mono text-sm hover:underline font-bold">
                   tushar.kashyap.bita@gmail.com
                 </a>
               </div>
-            </div>
+            </Tilt3DCard>
           </div>
 
-          {/* Right Column Form */}
-          <div className="lg:col-span-7 glass-panel p-8 border-cyan-500/30">
+          {/* Form */}
+          <Tilt3DCard className="lg:col-span-7 master-card p-8 md:p-10 bg-slate-900/90 border-white/10">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="block text-xs font-mono text-slate-300">Full Name *</label>
+                  <label className="block text-xs font-mono text-[#e2e8f0] font-bold">Full Name *</label>
                   <input 
                     type="text" 
                     required 
                     placeholder="John Doe"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-800 text-white rounded-lg p-3 text-sm focus:border-cyan-400 outline-none transition-colors"
+                    className="w-full bg-slate-950 border border-white/15 text-white rounded-md p-3 text-sm focus:border-[#a3e635] outline-none transition-colors"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-xs font-mono text-slate-300">Email Address *</label>
+                  <label className="block text-xs font-mono text-[#e2e8f0] font-bold">Email Address *</label>
                   <input 
                     type="email" 
                     required 
                     placeholder="john@enterprise.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-800 text-white rounded-lg p-3 text-sm focus:border-cyan-400 outline-none transition-colors"
+                    className="w-full bg-slate-950 border border-white/15 text-white rounded-md p-3 text-sm focus:border-[#a3e635] outline-none transition-colors"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="block text-xs font-mono text-slate-300">Service Required</label>
+                <label className="block text-xs font-mono text-[#e2e8f0] font-bold">Service Required</label>
                 <select 
                   value={formData.service}
                   onChange={(e) => setFormData({ ...formData, service: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-800 text-white rounded-lg p-3 text-sm focus:border-cyan-400 outline-none transition-colors"
+                  className="w-full bg-slate-950 border border-white/15 text-white rounded-md p-3 text-sm focus:border-[#a3e635] outline-none transition-colors font-mono text-xs"
                 >
                   <option value="Data Analytics & Power BI">Data Analytics & Power BI</option>
                   <option value="Azure Data Factory & Pipeline ETL">Azure Data Factory & Pipeline ETL</option>
@@ -123,35 +123,35 @@ export default function ContactSection() {
               </div>
 
               <div className="space-y-2">
-                <label className="block text-xs font-mono text-slate-300">Project Details / Message *</label>
+                <label className="block text-xs font-mono text-[#e2e8f0] font-bold">Project Details / Message *</label>
                 <textarea 
                   required 
                   rows={4}
                   placeholder="Tell us about your pipeline requirements or data goals..."
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-800 text-white rounded-lg p-3 text-sm focus:border-cyan-400 outline-none transition-colors"
+                  className="w-full bg-slate-950 border border-white/15 text-white rounded-md p-3 text-sm focus:border-[#a3e635] outline-none transition-colors"
                 ></textarea>
               </div>
 
               <button 
                 type="submit"
-                className="btn-whatsapp-direct w-full justify-center py-4 text-base font-bold uppercase tracking-wider"
+                className="btn-whatsapp-master w-full justify-center py-4 text-xs font-bold uppercase tracking-widest"
               >
                 {submitted ? (
                   <span className="flex items-center gap-2">
-                    <CheckCircle2 className="w-5 h-5" />
+                    <CheckCircle2 className="w-4 h-4" />
                     <span>Connecting to WhatsApp...</span>
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
-                    <MessageSquare className="w-5 h-5 fill-white" />
+                    <MessageSquare className="w-4 h-4 fill-white" />
                     <span>Submit & Open WhatsApp Direct</span>
                   </span>
                 )}
               </button>
             </form>
-          </div>
+          </Tilt3DCard>
         </div>
       </div>
     </section>

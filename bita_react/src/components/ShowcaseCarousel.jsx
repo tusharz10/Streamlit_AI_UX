@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Layers, ChevronLeft, ChevronRight, Play, Pause, Maximize2, X, Image as ImageIcon } from 'lucide-react';
+import Tilt3DCard from './3d/Tilt3DCard';
 
 const slideCollections = {
   home: {
@@ -29,7 +30,6 @@ export default function ShowcaseCarousel() {
   const totalSlides = currentCollection.images.length;
   const timerRef = useRef(null);
 
-  // Auto-play timer
   useEffect(() => {
     if (isPlaying) {
       timerRef.current = setInterval(() => {
@@ -57,37 +57,36 @@ export default function ShowcaseCarousel() {
   };
 
   return (
-    <section className="section-padding relative bg-slate-950/60 border-y border-slate-800/80" id="showcase">
+    <section className="section-padding bg-[#f7f7f7] border-y border-[#ececec]" id="showcase">
       <div className="container">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12 space-y-4">
-          <div className="section-badge mx-auto">
-            <Layers className="w-4 h-4 text-purple-400" />
-            <span>Interactive Slide Showcase</span>
+        <div className="max-w-3xl mb-12 space-y-4">
+          <div className="section-badge-master">
+            <span>Work & Insights</span>
           </div>
-          <h2 className="section-title text-white">
-            Explore Our <span className="gradient-text-cyan">Project Decks & Team Stars</span>
+          <h2 className="section-title-master">
+            Featured <span className="text-[#a3e635] bg-[#111111] px-2 py-0.5 rounded">Architecture Slides & Decks</span>
           </h2>
-          <p className="section-subtitle mx-auto">
-            Browse high-resolution presentation decks detailing our architecture blueprints, data engineering implementations, and key achievements.
+          <p className="section-subtitle-master">
+            Browse presentation decks detailing our cloud solutions, data engineering implementations, and certified team stars.
           </p>
         </div>
 
-        {/* Category Tabs */}
-        <div className="flex flex-wrap items-center justify-center gap-3 mb-10">
+        {/* Tabs */}
+        <div className="flex flex-wrap items-center gap-3 mb-10">
           {Object.entries(slideCollections).map(([key, col]) => (
             <button
               key={key}
               onClick={() => handleTabChange(key)}
-              className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
+              className={`px-6 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${
                 activeCategory === key
-                  ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white shadow-[0_0_20px_rgba(0,240,255,0.4)] border border-cyan-400'
-                  : 'bg-slate-900/80 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
+                  ? 'bg-[#111111] text-[#a3e635] shadow-md'
+                  : 'bg-white border border-[#ececec] text-[#555555] hover:text-[#111111]'
               }`}
             >
-              <ImageIcon className="w-4 h-4" />
+              <ImageIcon className="w-3.5 h-3.5" />
               <span>{col.title}</span>
-              <span className="ml-1 text-[11px] font-mono px-2 py-0.5 rounded-full bg-slate-950/60 text-cyan-300">
+              <span className="ml-1 text-[10px] px-2 py-0.5 rounded-full bg-[#f7f7f7] text-[#111111] font-bold">
                 {col.images.length}
               </span>
             </button>
@@ -95,91 +94,85 @@ export default function ShowcaseCarousel() {
         </div>
 
         {/* Main Viewer Card */}
-        <div className="max-w-4xl mx-auto glass-panel p-4 md:p-6 border-cyan-500/30 relative group shadow-[0_0_50px_rgba(0,0,0,0.8)]">
-          {/* Top Bar Controls */}
-          <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-800 text-xs font-mono text-slate-400">
+        <Tilt3DCard className="master-card p-6 md:p-8 relative">
+          <div className="flex items-center justify-between pb-4 mb-4 border-b border-[#ececec] text-xs font-mono text-[#888888]">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-              <span className="text-white font-medium">{currentCollection.subtitle}</span>
+              <span className="w-2 h-2 rounded-full bg-[#a3e635] animate-pulse"></span>
+              <span className="text-[#111111] font-semibold">{currentCollection.subtitle}</span>
             </div>
             
             <div className="flex items-center gap-4">
               <button 
                 onClick={() => setIsPlaying(!isPlaying)} 
-                className="flex items-center gap-1.5 hover:text-cyan-400 transition-colors"
-                title={isPlaying ? 'Pause Slideshow' : 'Start Auto-Play'}
+                className="flex items-center gap-1.5 text-[#111111] hover:text-[#a3e635] transition-colors uppercase font-bold"
               >
-                {isPlaying ? <Pause className="w-3.5 h-3.5 text-cyan-400" /> : <Play className="w-3.5 h-3.5" />}
+                {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
                 <span>{isPlaying ? 'PAUSE' : 'PLAY'}</span>
               </button>
 
-              <span className="text-cyan-400">
+              <span className="text-[#111111] font-bold">
                 {currentIndex + 1} / {totalSlides}
               </span>
             </div>
           </div>
 
-          {/* Slide Viewport */}
-          <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-slate-950 flex items-center justify-center border border-slate-800 group/view">
+          <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-black flex items-center justify-center border border-[#ececec] group/view">
             <img 
               src={currentCollection.images[currentIndex]} 
               alt={`${currentCollection.title} Slide ${currentIndex + 1}`}
-              className="w-full h-full object-contain transition-opacity duration-300"
+              className="w-full h-full object-contain"
             />
 
-            {/* Left Prev Arrow */}
             <button 
               onClick={handlePrev}
-              className="absolute left-3 top-1/2 -translate-y-1/2 p-3 rounded-full bg-slate-950/80 border border-slate-800 text-white hover:text-cyan-400 hover:border-cyan-400 transition-all opacity-80 hover:opacity-100"
+              className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/90 text-[#111111] hover:bg-[#a3e635] transition-all shadow-md"
               aria-label="Previous Slide"
             >
               <ChevronLeft className="w-6 h-6" />
             </button>
 
-            {/* Right Next Arrow */}
             <button 
               onClick={handleNext}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-3 rounded-full bg-slate-950/80 border border-slate-800 text-white hover:text-cyan-400 hover:border-cyan-400 transition-all opacity-80 hover:opacity-100"
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/90 text-[#111111] hover:bg-[#a3e635] transition-all shadow-md"
               aria-label="Next Slide"
             >
               <ChevronRight className="w-6 h-6" />
             </button>
 
-            {/* Expand Fullscreen Lightbox Button */}
             <button 
               onClick={() => setLightboxImage(currentCollection.images[currentIndex])}
-              className="absolute top-4 right-4 p-2.5 rounded-lg bg-slate-950/85 backdrop-blur-md border border-cyan-500/30 text-cyan-300 hover:bg-cyan-500 hover:text-black transition-all opacity-0 group-hover/view:opacity-100 flex items-center gap-1.5 text-xs font-mono"
+              className="absolute top-4 right-4 p-2.5 rounded-lg bg-black/80 text-white hover:bg-[#a3e635] hover:text-black transition-all opacity-0 group-hover/view:opacity-100 flex items-center gap-1.5 text-xs font-mono font-bold"
             >
               <Maximize2 className="w-4 h-4" />
               <span>FULLSCREEN</span>
             </button>
           </div>
 
-          {/* Thumbnails Navigation Strip */}
-          <div className="flex items-center gap-2 mt-6 overflow-x-auto pb-2 scrollbar-thin">
+          {/* Thumbnails */}
+          <div className="flex items-center gap-3 mt-6 overflow-x-auto pb-2 scrollbar-thin">
             {currentCollection.images.map((imgSrc, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrentIndex(idx)}
-                className={`relative w-20 aspect-[16/9] rounded-lg overflow-hidden shrink-0 border transition-all ${
+                className={`relative w-24 aspect-[16/9] rounded-lg overflow-hidden shrink-0 border transition-all ${
                   idx === currentIndex
-                    ? 'border-cyan-400 ring-2 ring-cyan-500/50 scale-105 opacity-100'
-                    : 'border-slate-800 opacity-50 hover:opacity-100'
+                    ? 'border-[#a3e635] ring-2 ring-[#a3e635] opacity-100 scale-105'
+                    : 'border-[#ececec] opacity-60 hover:opacity-100'
                 }`}
               >
                 <img src={imgSrc} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
               </button>
             ))}
           </div>
-        </div>
+        </Tilt3DCard>
       </div>
 
-      {/* Lightbox Fullscreen Modal */}
+      {/* Lightbox Modal */}
       {lightboxImage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/95 backdrop-blur-2xl animate-fadeIn">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fadeIn">
           <button 
             onClick={() => setLightboxImage(null)}
-            className="absolute top-6 right-6 p-3 rounded-full bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-cyan-400 transition-all"
+            className="absolute top-6 right-6 p-3 rounded-full bg-white text-[#111111] hover:bg-[#a3e635] transition-all"
           >
             <X className="w-6 h-6" />
           </button>
@@ -187,10 +180,10 @@ export default function ShowcaseCarousel() {
           <div className="max-w-6xl w-full max-h-[90vh] flex flex-col items-center justify-center">
             <img 
               src={lightboxImage} 
-              alt="Fullscreen Slide Detail" 
-              className="max-w-full max-h-[80vh] object-contain rounded-xl border border-cyan-500/40 shadow-[0_0_80px_rgba(0,240,255,0.3)]"
+              alt="Fullscreen Detail View" 
+              className="max-w-full max-h-[80vh] object-contain rounded-xl border border-[#ececec] shadow-2xl"
             />
-            <p className="mt-4 text-xs font-mono text-cyan-400">
+            <p className="mt-4 text-xs font-mono text-white">
               Press ESC or click close to return to showcase.
             </p>
           </div>

@@ -1,143 +1,188 @@
 import React, { useState, useEffect } from 'react';
-import { Cpu, Menu, X, MessageSquare, Zap, ChevronRight } from 'lucide-react';
+import { Search, Menu, X, MessageSquare, ArrowRight, Sun, Moon } from 'lucide-react';
+
+const getInitialTheme = () => {
+  const savedTheme = localStorage.getItem('bita_theme_user_choice');
+  if (savedTheme === 'dark' || savedTheme === 'light') {
+    return savedTheme;
+  }
+  // Fallback to system OS preference
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    return 'dark';
+  }
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+    return 'light';
+  }
+  return 'dark';
+};
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [theme, setTheme] = useState(getInitialTheme);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      setIsScrolled(window.scrollY > 30);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Sync theme with HTML document element
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  // Listen to OS system preference changes (if user has not set an explicit override)
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleSystemThemeChange = (e) => {
+      const savedUserChoice = localStorage.getItem('bita_theme_user_choice');
+      if (!savedUserChoice) {
+        setTheme(e.matches ? 'dark' : 'light');
+      }
+    };
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handleSystemThemeChange);
+      return () => mediaQuery.removeEventListener('change', handleSystemThemeChange);
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    localStorage.setItem('bita_theme_user_choice', nextTheme);
+  };
+
   return (
     <header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
-          ? 'bg-[#07090e]/85 backdrop-blur-xl border-b border-cyan-500/20 py-3 shadow-[0_4px_30px_rgba(0,240,255,0.1)]' 
-          : 'bg-transparent py-5'
+          ? 'bg-[var(--nav-bg)] backdrop-blur-md border-b border-[var(--border-light)] py-4 shadow-2xl' 
+          : 'bg-transparent py-6 border-b border-[var(--border-light)]'
       }`}
     >
       <div className="container flex items-center justify-between">
         {/* Brand Logo */}
         <a href="#" className="flex items-center gap-3 group text-decoration-none">
-          <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-cyan-500/30 p-1 bg-slate-950/80 group-hover:border-cyan-400 transition-all duration-300 shadow-[0_0_15px_rgba(0,240,255,0.2)]">
-            <img 
-              src="/BITA_LOGO.png" 
-              alt="BITA Logo" 
-              className="w-full h-full object-contain"
-              onError={(e) => { e.target.src = 'https://avatars.githubusercontent.com/u/155072885?v=4'; }}
-            />
+          <div className="w-9 h-9 rounded-md bg-[#a3e635] text-[#07090e] font-extrabold flex items-center justify-center text-base shadow-md group-hover:scale-105 transition-transform">
+            B
           </div>
           <div className="flex flex-col">
-            <span className="font-heading font-black text-xl tracking-wide text-white group-hover:text-cyan-400 transition-colors">
-              BITA <span className="gradient-text-cyan">CLOUD</span>
-            </span>
-            <span className="text-[10px] uppercase tracking-widest text-slate-400 font-mono flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              Info Tech Services
+            <span className="font-heading font-extrabold text-xl tracking-tight text-[var(--text-primary)]">
+              BITA <span className="text-[#a3e635] bg-[var(--bg-secondary)] border border-[var(--border-light)] px-1.5 py-0.5 rounded text-sm ml-1">CLOUD</span>
             </span>
           </div>
         </a>
 
         {/* Desktop Nav Links */}
-        <nav className="hidden md:flex items-center gap-8">
-          <a href="#platform" className="text-sm font-medium text-slate-300 hover:text-cyan-400 transition-colors flex items-center gap-1.5">
-            <Cpu className="w-4 h-4 text-cyan-400/70" /> Platform
+        <nav className="hidden lg:flex items-center gap-8">
+          <a href="#certified-teams" className="text-sm font-semibold text-[var(--text-primary)] hover:text-[#a3e635] transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#a3e635] hover:after:w-full after:transition-all">
+            Certified Teams
           </a>
-          <a href="#showcase" className="text-sm font-medium text-slate-300 hover:text-cyan-400 transition-colors">
-            Showcase
+          <a href="#industries" className="text-sm font-semibold text-[var(--text-primary)] hover:text-[#a3e635] transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#a3e635] hover:after:w-full after:transition-all">
+            Industries
           </a>
-          <a href="#ai-insights" className="text-sm font-medium text-slate-300 hover:text-cyan-400 transition-colors flex items-center gap-1.5">
-            <Zap className="w-4 h-4 text-purple-400/80" /> AI Blueprint
+          <a href="#services" className="text-sm font-semibold text-[var(--text-primary)] hover:text-[#a3e635] transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#a3e635] hover:after:w-full after:transition-all">
+            Services & Stack
           </a>
-          <a href="#about" className="text-sm font-medium text-slate-300 hover:text-cyan-400 transition-colors">
-            About Us
-          </a>
-          <a href="#contact" className="text-sm font-medium text-slate-300 hover:text-cyan-400 transition-colors">
-            Contact
+          <a href="#about" className="text-sm font-semibold text-[var(--text-primary)] hover:text-[#a3e635] transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#a3e635] hover:after:w-full after:transition-all">
+            About BITA
           </a>
         </nav>
 
-        {/* Desktop Action Buttons */}
-        <div className="hidden md:flex items-center gap-4">
+        {/* Right Action Icons & Buttons */}
+        <div className="hidden sm:flex items-center gap-4">
+          {/* Theme Switcher Toggle Logo Button */}
+          <button 
+            onClick={toggleTheme}
+            className="p-2.5 rounded-full bg-[var(--bg-secondary)] border border-[var(--border-light)] text-[var(--text-primary)] hover:border-[#a3e635] hover:text-[#a3e635] transition-all flex items-center justify-center shadow-sm group"
+            title={`Active Theme: ${theme.toUpperCase()} (Click to switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode)`}
+            aria-label="Toggle Theme"
+          >
+            {theme === 'dark' ? (
+              <Sun className="w-5 h-5 text-[#a3e635] group-hover:rotate-90 transition-transform duration-500" />
+            ) : (
+              <Moon className="w-5 h-5 text-[#111111] group-hover:-rotate-45 transition-transform duration-500" />
+            )}
+          </button>
+
+          <button className="p-2 text-[var(--text-primary)] hover:text-[#a3e635] transition-colors" aria-label="Search">
+            <Search className="w-5 h-5" />
+          </button>
+
           <a 
             href="https://wa.me/918982296014" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="btn-whatsapp-direct text-sm py-2 px-4"
+            className="btn-whatsapp-master text-xs py-2.5 px-4"
           >
             <MessageSquare className="w-4 h-4 fill-white" />
             <span>WhatsApp Direct</span>
           </a>
+
+          <a 
+            href="#contact" 
+            className="btn-master-primary text-xs py-2.5 px-5"
+          >
+            <span>Contact Us</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </a>
         </div>
 
-        {/* Mobile Menu Button */}
-        <button 
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 text-slate-300 hover:text-cyan-400 bg-slate-900/60 border border-slate-800 rounded-lg"
-          aria-label="Toggle Navigation"
-        >
-          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+        {/* Mobile Hamburger Button & Theme Switcher */}
+        <div className="flex items-center gap-2 sm:hidden">
+          <button 
+            onClick={toggleTheme}
+            className="p-2 rounded-full bg-[var(--bg-secondary)] border border-[var(--border-light)] text-[var(--text-primary)]"
+            aria-label="Toggle Theme"
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4 text-[#a3e635]" /> : <Moon className="w-4 h-4 text-[#111111]" />}
+          </button>
+
+          <button 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-light)] rounded-md"
+            aria-label="Toggle Menu"
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
       </div>
 
-      {/* Mobile Drawer Menu */}
+      {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#07090e]/95 backdrop-blur-2xl border-b border-cyan-500/20 px-6 py-6 transition-all animate-fadeIn">
+        <div className="lg:hidden bg-[var(--nav-bg)] backdrop-blur-2xl border-b border-[var(--border-light)] px-6 py-6 transition-all">
           <div className="flex flex-col gap-4">
-            <a 
-              href="#platform" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-base font-medium text-slate-200 hover:text-cyan-400 py-2 border-b border-slate-800/60 flex items-center justify-between"
-            >
-              <span>Platform & Tech Stack</span>
-              <ChevronRight className="w-4 h-4 text-cyan-400" />
+            <a href="#certified-teams" onClick={() => setMobileMenuOpen(false)} className="text-base font-semibold text-[var(--text-primary)] py-2 border-b border-[var(--border-light)]">
+              Certified Teams
             </a>
-            <a 
-              href="#showcase" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-base font-medium text-slate-200 hover:text-cyan-400 py-2 border-b border-slate-800/60 flex items-center justify-between"
-            >
-              <span>Interactive Showcase</span>
-              <ChevronRight className="w-4 h-4 text-cyan-400" />
+            <a href="#industries" onClick={() => setMobileMenuOpen(false)} className="text-base font-semibold text-[var(--text-primary)] py-2 border-b border-[var(--border-light)]">
+              Industries
             </a>
-            <a 
-              href="#ai-insights" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-base font-medium text-slate-200 hover:text-cyan-400 py-2 border-b border-slate-800/60 flex items-center justify-between"
-            >
-              <span>AI Architecture Blueprint</span>
-              <ChevronRight className="w-4 h-4 text-cyan-400" />
+            <a href="#services" onClick={() => setMobileMenuOpen(false)} className="text-base font-semibold text-[var(--text-primary)] py-2 border-b border-[var(--border-light)]">
+              Services & Stack
             </a>
-            <a 
-              href="#about" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-base font-medium text-slate-200 hover:text-cyan-400 py-2 border-b border-slate-800/60 flex items-center justify-between"
-            >
-              <span>About BITA</span>
-              <ChevronRight className="w-4 h-4 text-cyan-400" />
+            <a href="#about" onClick={() => setMobileMenuOpen(false)} className="text-base font-semibold text-[var(--text-primary)] py-2 border-b border-[var(--border-light)]">
+              About BITA
             </a>
-            <a 
-              href="#contact" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="text-base font-medium text-slate-200 hover:text-cyan-400 py-2 border-b border-slate-800/60 flex items-center justify-between"
-            >
-              <span>Contact Us</span>
-              <ChevronRight className="w-4 h-4 text-cyan-400" />
-            </a>
-            <div className="pt-2">
+            <div className="pt-2 flex flex-col gap-3">
               <a 
                 href="https://wa.me/918982296014" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="btn-whatsapp-direct w-full justify-center text-center py-3"
+                className="btn-whatsapp-master w-full justify-center py-3 text-sm"
               >
-                <MessageSquare className="w-5 h-5 fill-white" />
-                <span>Chat on WhatsApp (+91 89822 96014)</span>
+                <span>WhatsApp Direct (+91 89822 96014)</span>
+              </a>
+              <a 
+                href="#contact" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="btn-master-primary w-full justify-center py-3 text-sm"
+              >
+                <span>Contact Us</span>
               </a>
             </div>
           </div>

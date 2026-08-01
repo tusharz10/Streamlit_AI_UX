@@ -1,85 +1,85 @@
 import React, { useState } from 'react';
-import { Database, Cpu, Layout, Cloud, Shield, CheckCircle2, X, ExternalLink } from 'lucide-react';
+import { CheckCircle2, X, ArrowRight, ShieldCheck } from 'lucide-react';
+import Tilt3DCard from './3d/Tilt3DCard';
+import TechStack3DOrbit from './3d/TechStack3DOrbit';
 
 const techPlatforms = [
   {
+    id: 'ai',
+    title: 'Artificial Intelligence & OpenAI',
+    category: 'Predictive Intelligence',
+    icon: '/assets/tech/openai.svg',
+    badge: 'OpenAI / Claude AI',
+    shortDesc: 'Building predictive machine learning pipelines, LLM agentic workflows, and automated AI data intelligence.',
+    specs: [
+      'OpenAI GPT-4o & Claude AI integration for enterprise knowledge bases.',
+      'PySpark & Databricks Machine Learning model deployment.',
+      'Automated feature store ingestion & real-time inference endpoints.'
+    ]
+  },
+  {
     id: 'adf',
     title: 'Azure Data Factory',
-    category: 'Pipeline Orchestration',
-    icon: 'https://symbols.getvecta.com/stencil_27/36_data-factory.e36cbf28ed.png',
-    fallbackIcon: Cpu,
-    glowColor: 'cyan',
-    badge: 'ETL / ELT Automation',
-    shortDesc: 'Orchestrating robust data pipelines for hybrid, scalable, and automated ETL/ELT workflows across enterprise systems.',
+    category: 'Pipeline Automation',
+    icon: '/assets/tech/azure.svg',
+    badge: 'ETL / ELT Pipelines',
+    shortDesc: 'Orchestrating robust Azure Data Factory ETL/ELT pipelines for enterprise data integration at scale.',
     specs: [
       'Self-hosted Integration Runtimes for hybrid cloud-on-prem data movement.',
       'Dynamic Parameterized Pipelines with Copy, Data Flow, & Lookup activities.',
-      'Automated trigger scheduling (Tumbling Window, Event-based).',
-      'End-to-End monitoring with Azure Monitor & Log Analytics.'
+      'Automated trigger scheduling and end-to-end telemetry monitoring.'
     ]
   },
   {
     id: 'powerbi',
-    title: 'Power BI & Fabric Analytics',
-    category: 'Executive Business Intelligence',
-    icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/New_Power_BI_Logo.svg/1200px-New_Power_BI_Logo.svg.png',
-    fallbackIcon: Layout,
-    glowColor: 'gold',
+    title: 'Power BI Analytics',
+    category: 'Business Intelligence',
+    icon: '/assets/tech/powerbi.svg',
     badge: 'Interactive Visuals',
-    shortDesc: 'Transform raw complex data into interactive, real-time dashboards and executive visual insights on SaaS & Fabric.',
+    shortDesc: 'Transforming complex data into real-time interactive Power BI executive reporting dashboards.',
     specs: [
       'Advanced DAX measures, row-level security (RLS), & dynamic bookmarking.',
       'DirectQuery & Composite Model optimization for high data volumes.',
-      'Paginated Reports & mobile-optimized executive dashboard design.',
       'Seamless integration with Fabric Lakehouse OneLake datasets.'
     ]
   },
   {
     id: 'sqlserver',
-    title: 'SQL Server & Data Warehouse',
-    category: 'High-Speed Relational Engine',
-    icon: 'https://symbols.getvecta.com/stencil_27/79_sql-database-generic.494ff6320e.png',
-    fallbackIcon: Database,
-    glowColor: 'purple',
-    badge: 'Transactional Storage',
-    shortDesc: 'Reliable, high-performance database foundation built for secure transactions and high-speed analytical queries.',
+    title: 'SQL Server & Data Lake',
+    category: 'Relational Database',
+    icon: '/assets/tech/sql.svg',
+    badge: 'High-Speed Storage',
+    shortDesc: 'High-performance SQL Server database backends optimized for transactional and analytical workloads.',
     specs: [
       'Stored Procedure & T-SQL optimization for ultra-fast query execution.',
       'Columnstore indexing for high-density analytical compression.',
-      'High Availability (Always On Availability Groups) & disaster recovery.',
-      'Role-based access security, encryption at rest, & automated backups.'
+      'Always On High Availability & role-based access security.'
     ]
   },
   {
-    id: 'azure',
-    title: 'Microsoft Azure Cloud',
-    category: 'Enterprise Infrastructure',
-    icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Microsoft_Azure.svg/2048px-Microsoft_Azure.svg.png',
-    fallbackIcon: Cloud,
-    glowColor: 'cyan',
-    badge: 'Cloud Modernization',
-    shortDesc: 'Scalable, secure cloud solutions covering cloud migration, infrastructure optimization, and managed cloud services.',
+    id: 'databricks',
+    title: 'Databricks & PySpark',
+    category: 'Big Data Processing',
+    icon: '/assets/tech/databricks.svg',
+    badge: 'Unified Data & AI',
+    shortDesc: 'Scalable PySpark data frame transformations, Delta Lake storage, and distributed cluster compute.',
     specs: [
-      'Enterprise Tenant Setup with Key Vault secrets management.',
-      'Virtual Networks (VNet), Private Endpoints, & NSG security rules.',
-      'Azure Synapse & Blob Storage integration for big data pipelines.',
-      'Cost optimization using Azure Resource Management & Advisor rules.'
+      'Delta Lake ACID transactions and time-travel query auditing.',
+      'PySpark distributed processing for multi-terabyte datasets.',
+      'MLflow experiment tracking and automated model registry.'
     ]
   },
   {
-    id: 'fabric',
-    title: 'Microsoft Fabric SaaS',
-    category: 'Unified SaaS Data Lakehouse',
-    icon: 'https://davidalzamendi.com/wp-content/uploads/2023/05/Fabric_final_x256.png',
-    fallbackIcon: Shield,
-    glowColor: 'emerald',
-    badge: 'Next-Gen Analytics',
-    shortDesc: 'Unified SaaS data analytics platform for seamless data lakehouse integration, real-time analytics, and scaling.',
+    id: 'dbt',
+    title: 'dbt & Modern Data Stack',
+    category: 'Transformation Engine',
+    icon: '/assets/tech/dbt.svg',
+    badge: 'Data Transformation',
+    shortDesc: 'Modular T-SQL/SQL data transformations with version control, testing, and automated documentation.',
     specs: [
-      'OneLake unified storage eliminating data siloing.',
-      'Direct Lake mode for instant Power BI queries without data duplication.',
-      'Integrated PySpark notebooks for predictive machine learning.',
-      'Real-Time Intelligence with KQL database queries.'
+      'Modular SQL model building with Jinja templating and macros.',
+      'Automated data quality testing and schema validation.',
+      'Lineage graphs and automated documentation generation.'
     ]
   }
 ];
@@ -87,107 +87,105 @@ const techPlatforms = [
 export default function PlatformGrid() {
   const [selectedTech, setSelectedTech] = useState(null);
 
+  const handleSelectFrom3D = (techItem) => {
+    const found = techPlatforms.find(t => t.id === techItem.id);
+    if (found) setSelectedTech(found);
+  };
+
   return (
-    <section className="section-padding relative" id="platform">
+    <section className="section-padding theme-bg-secondary border-y theme-border" id="services">
       <div className="container">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-          <div className="section-badge mx-auto">
-            <Cpu className="w-4 h-4 text-cyan-400" />
-            <span>Core Data Architecture Stack</span>
+        <div className="max-w-3xl mb-16 space-y-4">
+          <div className="section-badge-master">
+            <span>Capabilities & Stack</span>
           </div>
-          <h2 className="section-title text-white">
-            Enterprise Data & <span className="gradient-text-cyan">Analytics Platform</span>
+          <h2 className="section-title-master theme-text-primary">
+            Real SVG <span className="text-[#a3e635] bg-[var(--bg-primary)] border theme-border px-2 py-0.5 rounded">Technology Stack</span>
           </h2>
-          <p className="section-subtitle mx-auto">
-            Powering enterprise transformation with robust Microsoft Azure cloud pipelines, Fabric Lakehouse, SQL Data Warehousing, and real-time Power BI reporting.
+          <p className="section-subtitle-master theme-text-secondary">
+            End-to-end cloud data engineering, AI model deployment, and real-time visualization built with production-proven tools.
           </p>
         </div>
 
-        {/* Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* 3D Orbit Stage */}
+        <TechStack3DOrbit onSelectTech={handleSelectFrom3D} />
+
+        {/* Services Editorial Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
           {techPlatforms.map((tech) => (
-            <div 
+            <Tilt3DCard
               key={tech.id} 
-              className="glass-panel p-6 flex flex-col justify-between group cursor-pointer hover:border-cyan-500/50 transition-all duration-300 relative overflow-hidden"
+              className="master-card p-8 flex flex-col justify-between group cursor-pointer"
               onClick={() => setSelectedTech(tech)}
             >
-              {/* Top Card Ambient Accent */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-full blur-2xl group-hover:bg-cyan-500/15 transition-all"></div>
-
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <div className="w-14 h-14 rounded-xl bg-slate-900/90 border border-slate-800 p-2.5 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:border-cyan-500/40 transition-all">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="w-14 h-14 rounded-2xl theme-bg-secondary border theme-border p-2.5 flex items-center justify-center group-hover:scale-105 transition-transform">
                     <img 
                       src={tech.icon} 
                       alt={tech.title} 
                       className="w-full h-full object-contain"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'block';
-                      }}
                     />
-                    <tech.fallbackIcon className="w-8 h-8 text-cyan-400 hidden" />
                   </div>
 
-                  <span className="text-[11px] font-mono px-3 py-1 rounded-full bg-slate-900/80 border border-cyan-500/20 text-cyan-300">
+                  <span className="text-xs font-mono uppercase tracking-wider px-3 py-1 rounded bg-[#a3e635] text-[#07090e] font-extrabold">
                     {tech.badge}
                   </span>
                 </div>
 
-                <div className="space-y-2 mb-4">
-                  <span className="text-xs font-mono text-slate-400 uppercase tracking-wider">{tech.category}</span>
-                  <h3 className="font-heading text-xl font-bold text-white group-hover:text-cyan-400 transition-colors">
+                <div className="space-y-2">
+                  <span className="text-xs font-mono theme-text-secondary uppercase tracking-wider block font-semibold">{tech.category}</span>
+                  <h3 className="font-heading text-2xl font-bold theme-text-primary group-hover:text-[#a3e635] transition-colors">
                     {tech.title}
                   </h3>
+                  <p className="theme-text-secondary text-sm leading-relaxed font-normal">
+                    {tech.shortDesc}
+                  </p>
                 </div>
-
-                <p className="text-slate-300 text-sm leading-relaxed mb-6 font-light">
-                  {tech.shortDesc}
-                </p>
               </div>
 
-              <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs font-mono text-cyan-400 group-hover:text-cyan-300">
+              <div className="pt-6 mt-6 border-t theme-border flex items-center justify-between text-xs font-semibold theme-text-primary group-hover:text-[#a3e635]">
                 <span>Inspect Specifications</span>
-                <ExternalLink className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
-            </div>
+            </Tilt3DCard>
           ))}
         </div>
       </div>
 
       {/* Tech Spec Deep-Dive Modal */}
       {selectedTech && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xl animate-fadeIn">
-          <div className="glass-panel max-w-xl w-full p-8 relative border-cyan-500/40 shadow-[0_0_60px_rgba(0,240,255,0.25)]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn theme-text-primary">
+          <Tilt3DCard className="master-card max-w-xl w-full p-8 relative theme-bg-primary border theme-border">
             <button 
               onClick={() => setSelectedTech(null)}
-              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-lg bg-slate-900/80 border border-slate-800"
+              className="absolute top-4 right-4 p-2 theme-text-secondary hover:theme-text-primary rounded-md theme-bg-secondary border theme-border"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-slate-900 border border-cyan-500/30 p-2">
+              <div className="w-14 h-14 rounded-2xl theme-bg-secondary border theme-border p-2.5 flex items-center justify-center">
                 <img src={selectedTech.icon} alt={selectedTech.title} className="w-full h-full object-contain" />
               </div>
               <div>
-                <span className="text-xs font-mono text-cyan-400 uppercase tracking-widest">{selectedTech.category}</span>
-                <h3 className="font-heading text-2xl font-bold text-white">{selectedTech.title}</h3>
+                <span className="text-xs font-mono theme-text-secondary uppercase tracking-wider">{selectedTech.category}</span>
+                <h3 className="font-heading text-2xl font-bold theme-text-primary">{selectedTech.title}</h3>
               </div>
             </div>
 
-            <p className="text-slate-300 text-sm mb-6 leading-relaxed">
+            <p className="theme-text-secondary text-sm mb-6 leading-relaxed">
               {selectedTech.shortDesc}
             </p>
 
             <div className="space-y-3 mb-8">
-              <h4 className="text-xs font-mono uppercase tracking-wider text-slate-400 border-b border-slate-800 pb-2">
-                Technical Highlights & Features
+              <h4 className="text-xs font-mono uppercase tracking-wider theme-text-secondary border-b theme-border pb-2 font-bold">
+                Technical Specifications & Architecture
               </h4>
               {selectedTech.specs.map((spec, i) => (
-                <div key={i} className="flex items-start gap-3 text-sm text-slate-200">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <div key={i} className="flex items-start gap-3 text-sm theme-text-primary">
+                  <CheckCircle2 className="w-4 h-4 text-[#a3e635] shrink-0 mt-0.5" />
                   <span>{spec}</span>
                 </div>
               ))}
@@ -196,19 +194,19 @@ export default function PlatformGrid() {
             <div className="flex justify-end gap-3">
               <button 
                 onClick={() => setSelectedTech(null)}
-                className="btn-glass text-xs py-2 px-4"
+                className="btn-master-secondary text-xs py-2.5 px-4"
               >
                 Close Spec
               </button>
               <a 
                 href="#contact" 
                 onClick={() => setSelectedTech(null)}
-                className="btn-cyan text-xs py-2 px-4"
+                className="btn-master-primary text-xs py-2.5 px-4"
               >
-                Request Architecture Review
+                Request Consultation
               </a>
             </div>
-          </div>
+          </Tilt3DCard>
         </div>
       )}
     </section>

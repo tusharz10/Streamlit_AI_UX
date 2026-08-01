@@ -1,22 +1,26 @@
 import React from 'react';
 import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
+import CertifiedTeamSection from './components/CertifiedTeamSection';
+import IndustriesSection from './components/IndustriesSection';
 import PlatformGrid from './components/PlatformGrid';
-import ShowcaseCarousel from './components/ShowcaseCarousel';
-import AiBlueprintSimulator from './components/AiBlueprintSimulator';
+import StatsBanner from './components/StatsBanner';
+import TestimonialsPartners from './components/TestimonialsPartners';
 import AboutSection from './components/AboutSection';
 import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-[#07090e] text-slate-100 selection:bg-cyan-500 selection:text-black">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] selection:bg-[#a3e635] selection:text-[#07090e] transition-colors duration-300">
       <Navbar />
       <main>
         <HeroSection />
+        <CertifiedTeamSection />
+        <IndustriesSection />
         <PlatformGrid />
-        <ShowcaseCarousel />
-        <AiBlueprintSimulator />
+        <StatsBanner />
+        <TestimonialsPartners />
         <AboutSection />
         <ContactSection />
       </main>
