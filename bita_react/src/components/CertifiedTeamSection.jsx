@@ -5,51 +5,51 @@ import Tilt3DCard from './3d/Tilt3DCard';
 const certificationBadges = [
   {
     id: 1,
-    title: 'Azure Data Engineer Associate',
-    subtitle: 'Microsoft Certified Professional',
+    title: 'Databricks Data Engineer Professional',
+    subtitle: 'Databricks Certified Professional',
     badge: '/badges/1.svg',
-    desc: 'Expertise in designing and implementing data storage, processing, and pipeline security on Microsoft Azure.',
-    code: 'DP-203'
+    desc: 'Advanced PySpark distributed processing, Delta Lake ACID optimizations, performance tuning, and enterprise ETL pipelines.',
+    code: 'DB-PRO'
   },
   {
     id: 2,
-    title: 'Power BI Data Analyst Associate',
-    subtitle: 'Microsoft Certified Professional',
+    title: 'Databricks GenAI Engineer Associate',
+    subtitle: 'Databricks Certified Specialist',
     badge: '/badges/2.svg',
-    desc: 'Advanced DAX modeling, interactive report design, and enterprise Power BI governance.',
-    code: 'PL-300'
+    desc: 'Generative AI model fine-tuning, RAG architecture, LLM agent orchestration, and MLflow experiment tracking.',
+    code: 'DB-GENAI'
   },
   {
     id: 3,
-    title: 'Azure Solutions Architect Expert',
+    title: 'Power BI Data Analyst Associate',
     subtitle: 'Microsoft Certified Professional',
     badge: '/badges/3.svg',
-    desc: 'Mastery in designing cloud migration, hybrid networking, disaster recovery, and Key Vault security.',
-    code: 'AZ-305'
+    desc: 'Advanced DAX modeling, interactive report design, Row-Level Security (RLS), and enterprise Power BI governance.',
+    code: 'PL-300'
   },
   {
     id: 4,
-    title: 'Fabric Analytics Engineer Associate',
+    title: 'Microsoft Fabric Data Engineer Associate',
     subtitle: 'Microsoft Certified Professional',
     badge: '/badges/4.svg',
-    desc: 'Unified SaaS OneLake lakehouse architecture, Direct Lake Power BI, and PySpark engineering.',
-    code: 'DP-600'
+    desc: 'Unified SaaS OneLake lakehouse architecture, Direct Lake mode execution, Data Factory pipelines, and PySpark engineering.',
+    code: 'DP-700'
   },
   {
     id: 5,
-    title: 'Databricks Data Engineer',
-    subtitle: 'Certified Data & AI Specialist',
+    title: 'Azure Fundamentals',
+    subtitle: 'Microsoft Certified Professional',
     badge: '/badges/5.svg',
-    desc: 'Delta Lake pipelines, PySpark data frame transformations, and predictive machine learning models.',
-    code: 'DB-ENG'
+    desc: 'Core Azure cloud services, security governance, virtual networks, identity management, and SLA compliance.',
+    code: 'AZ-900'
   },
   {
     id: 6,
-    title: 'DevOps & Security Specialist',
-    subtitle: 'Certified Cloud Platform Engineer',
+    title: 'Palantir Foundry Aware Specialist',
+    subtitle: 'Palantir Certified Data Engineer',
     badge: '/badges/6.svg',
-    desc: 'Automated CI/CD GitHub Actions, Docker/Kubernetes containerization, and infrastructure as code (IaC).',
-    code: 'AZ-400'
+    desc: 'Palantir Foundry ontology building, data pipeline transformations, contour analytics, and enterprise data integration.',
+    code: 'FOUNDRY'
   }
 ];
 
