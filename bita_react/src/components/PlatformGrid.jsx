@@ -72,7 +72,7 @@ const techPlatforms = [
     id: 'dbt',
     title: 'dbt & Modern Data Stack',
     category: 'Transformation Engine',
-    icon: '/assets/tech/dbt.svg',
+    icon: '/assets/tech/dbt.png',
     badge: 'Data Transformation',
     shortDesc: 'Modular T-SQL/SQL data transformations with version control, testing, and automated documentation.',
     specs: [

@@ -9,6 +9,7 @@ const partners = [
   { name: 'SQL Server', icon: '/assets/tech/sql.svg' },
   { name: 'Azure Data Factory', icon: '/assets/tech/azure.svg' },
   { name: 'Microsoft Fabric', icon: '/assets/tech/fabric.svg' },
+  { name: 'dbt Labs', icon: '/assets/tech/dbt.png' },
   { name: 'OpenAI', icon: '/assets/tech/openai.svg' }
 ];
 
