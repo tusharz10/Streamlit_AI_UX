@@ -1,203 +1,333 @@
-import React, { useState } from 'react';
-import { CheckCircle2, X, ArrowRight, ShieldCheck } from 'lucide-react';
-import Tilt3DCard from './3d/Tilt3DCard';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { CheckCircle2, X, ArrowRight, ChevronRight } from 'lucide-react';
 
 const techPlatforms = [
   {
-    id: 'ai',
-    title: 'Artificial Intelligence & OpenAI',
-    category: 'Predictive Intelligence',
-    icon: '/assets/tech/openai.svg',
-    badge: 'OpenAI / Claude AI',
-    shortDesc: 'Building predictive machine learning pipelines, LLM agentic workflows, and automated AI data intelligence.',
-    specs: [
-      'OpenAI GPT-4o & Claude AI integration for enterprise knowledge bases.',
-      'PySpark & Databricks Machine Learning model deployment.',
-      'Automated feature store ingestion & real-time inference endpoints.'
-    ]
-  },
-  {
     id: 'adf',
     title: 'Azure Data Factory',
-    category: 'Pipeline Automation',
+    category: 'Pipeline Automation & ETL',
     icon: '/assets/tech/azure.svg',
-    badge: 'ETL / ELT Pipelines',
-    shortDesc: 'Orchestrating robust Azure Data Factory ETL/ELT pipelines for enterprise data integration at scale.',
+    badge: 'ETL / ELT',
+    shortDesc: 'Orchestrating enterprise-grade Azure Data Factory ETL/ELT pipelines for high-volume data integration at any scale.',
     specs: [
-      'Self-hosted Integration Runtimes for hybrid cloud-on-prem data movement.',
-      'Dynamic Parameterized Pipelines with Copy, Data Flow, & Lookup activities.',
-      'Automated trigger scheduling and end-to-end telemetry monitoring.'
-    ]
+      'Self-hosted Integration Runtimes for hybrid cloud-on-prem data movement at zero latency.',
+      'Dynamic Parameterized Pipelines with Copy, Data Flow, Lookup & ForEach activities.',
+      'Automated trigger scheduling (tumbling window, event-based) with end-to-end telemetry monitoring.',
+    ],
+    accentColor: '#0284c7',
+  },
+  {
+    id: 'fabric',
+    title: 'Microsoft Fabric & OneLake',
+    category: 'Lakehouse Architecture',
+    icon: '/assets/tech/fabric.svg',
+    badge: 'Lakehouse',
+    shortDesc: 'Unified SaaS OneLake lakehouse architecture with Direct Lake mode for zero-copy, instant analytical queries.',
+    specs: [
+      'OneLake single data copy shared across Fabric workloads — no data movement required.',
+      'Direct Lake mode execution for sub-second Power BI queries on petabyte-scale datasets.',
+      'Lakehouse Medallion architecture (Bronze → Silver → Gold) with automated delta refresh.',
+    ],
+    accentColor: '#7c3aed',
   },
   {
     id: 'powerbi',
     title: 'Power BI Analytics',
     category: 'Business Intelligence',
     icon: '/assets/tech/powerbi.svg',
-    badge: 'Interactive Visuals',
-    shortDesc: 'Transforming complex data into real-time interactive Power BI executive reporting dashboards.',
+    badge: 'BI Visuals',
+    shortDesc: 'Transforming raw data into executive-ready real-time Power BI dashboards with advanced DAX and RLS security.',
     specs: [
-      'Advanced DAX measures, row-level security (RLS), & dynamic bookmarking.',
-      'DirectQuery & Composite Model optimization for high data volumes.',
-      'Seamless integration with Fabric Lakehouse OneLake datasets.'
-    ]
-  },
-  {
-    id: 'sqlserver',
-    title: 'SQL Server & Data Lake',
-    category: 'Relational Database',
-    icon: '/assets/tech/sql.svg',
-    badge: 'High-Speed Storage',
-    shortDesc: 'High-performance SQL Server database backends optimized for transactional and analytical workloads.',
-    specs: [
-      'Stored Procedure & T-SQL optimization for ultra-fast query execution.',
-      'Columnstore indexing for high-density analytical compression.',
-      'Always On High Availability & role-based access security.'
-    ]
+      'Advanced DAX measures, calculated columns, and dynamic Row-Level Security (RLS) for multi-tenant reporting.',
+      'DirectQuery & Composite Model optimization for high-volume real-time data sources.',
+      'Seamless integration with Fabric OneLake datasets and Azure Analysis Services.',
+    ],
+    accentColor: '#f59e0b',
   },
   {
     id: 'databricks',
     title: 'Databricks & PySpark',
     category: 'Big Data Processing',
     icon: '/assets/tech/databricks.svg',
-    badge: 'Unified Data & AI',
-    shortDesc: 'Scalable PySpark data frame transformations, Delta Lake storage, and distributed cluster compute.',
+    badge: 'Data & AI',
+    shortDesc: 'Scalable PySpark distributed processing, Delta Lake ACID storage, and ML model deployment on Databricks clusters.',
     specs: [
-      'Delta Lake ACID transactions and time-travel query auditing.',
-      'PySpark distributed processing for multi-terabyte datasets.',
-      'MLflow experiment tracking and automated model registry.'
-    ]
+      'Delta Lake ACID transactions with time-travel query auditing for regulatory compliance.',
+      'PySpark distributed processing for multi-terabyte datasets with cluster auto-scaling.',
+      'MLflow experiment tracking, model registry, and automated A/B model evaluation.',
+    ],
+    accentColor: '#ef4444',
   },
   {
     id: 'dbt',
-    title: 'dbt & Modern Data Stack',
-    category: 'Transformation Engine',
+    title: 'dbt Transformation Layer',
+    category: 'Modern Data Stack',
     icon: '/assets/tech/dbt.png',
-    badge: 'Data Transformation',
-    shortDesc: 'Modular T-SQL/SQL data transformations with version control, testing, and automated documentation.',
+    badge: 'Transform',
+    shortDesc: 'Modular, version-controlled SQL data transformations with automated testing, lineage graphs, and documentation.',
     specs: [
-      'Modular SQL model building with Jinja templating and macros.',
-      'Automated data quality testing and schema validation.',
-      'Lineage graphs and automated documentation generation.'
-    ]
-  }
+      'Modular SQL model building with Jinja templating, macros, and cross-database ref() resolution.',
+      'Automated schema validation, uniqueness tests, and referential integrity checks on every run.',
+      'Auto-generated lineage graphs and data documentation published to team knowledge portals.',
+    ],
+    accentColor: '#ff5538',
+  },
+  {
+    id: 'ai',
+    title: 'Enterprise AI Agents',
+    category: 'Generative AI & LLM',
+    icon: '/assets/tech/openai.svg',
+    badge: 'AI / LLM',
+    shortDesc: 'Building production LLM agents, RAG pipelines, and predictive ML models using Azure OpenAI and Databricks.',
+    specs: [
+      'Azure OpenAI GPT-4o integration for enterprise knowledge bases and document intelligence.',
+      'RAG (Retrieval-Augmented Generation) pipelines with vector search on structured + unstructured data.',
+      'PySpark feature stores and automated model inference endpoints with Databricks Model Serving.',
+    ],
+    accentColor: '#8b5cf6',
+  },
 ];
 
+function FocusTrap({ children, onClose }) {
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const focusables = container.querySelectorAll(
+      'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+
+    const handleKey = (e) => {
+      if (e.key === 'Escape') { onClose(); return; }
+      if (e.key !== 'Tab') return;
+      if (e.shiftKey ? document.activeElement === first : document.activeElement === last) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKey);
+    first?.focus();
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [onClose]);
+
+  return <div ref={containerRef}>{children}</div>;
+}
+
 export default function PlatformGrid() {
-  const [selectedTech, setSelectedTech] = useState(null);
+  const [selected, setSelected] = useState(null);
+  const triggerRef = useRef(null);
+
+  const openModal = useCallback((tech, el) => {
+    triggerRef.current = el;
+    setSelected(tech);
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setSelected(null);
+    triggerRef.current?.focus();
+  }, []);
+
+  /* Body scroll lock when modal open */
+  useEffect(() => {
+    document.body.style.overflow = selected ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [selected]);
 
   return (
-    <section className="section-padding theme-bg-secondary border-y theme-border" id="services">
+    <section
+      id="services"
+      aria-labelledby="services-heading"
+      className="section-padding"
+      style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-subtle)' }}
+    >
       <div className="container">
-        {/* Section Header */}
-        <div className="max-w-5xl mb-16 space-y-4">
-          <div className="section-badge-master">
-            <span>Capabilities & Stack</span>
-          </div>
-          <h2 className="section-title-master theme-text-primary sm:whitespace-nowrap">
-            Enterprise <span className="text-[var(--accent-lime)] bg-[var(--bg-primary)] border theme-border px-2 py-0.5 rounded">Azure Data & AI Stack</span>
+        <div className="max-w-3xl mb-14 space-y-4">
+          <div className="section-badge w-fit">Capabilities &amp; Tech Stack</div>
+          <h2 id="services-heading" className="section-title">
+            Enterprise <strong>Azure Data &amp; AI</strong> Platform
           </h2>
-          <p className="section-subtitle-master theme-text-secondary">
-            Production-proven Azure cloud data engineering, Microsoft Fabric lakehouses, Power BI analytics, and enterprise AI models.
+          <p className="section-subtitle">
+            Production-proven implementations across Azure Data Factory, Microsoft Fabric, Power BI, Databricks, dbt, and enterprise AI models.
           </p>
         </div>
 
-        {/* Services Editorial Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <ul
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 list-none p-0 m-0"
+          role="list"
+          aria-label="Technology capabilities"
+        >
           {techPlatforms.map((tech) => (
-            <Tilt3DCard
-              key={tech.id}
-              className="master-card p-8 flex flex-col justify-between group cursor-pointer"
-              onClick={() => setSelectedTech(tech)}
-            >
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="w-14 h-14 rounded-2xl theme-bg-secondary border theme-border p-2.5 flex items-center justify-center group-hover:scale-105 transition-transform">
-                    <img
-                      src={tech.icon}
-                      alt={tech.title}
-                      className="w-full h-full object-contain"
-                    />
+            <li key={tech.id}>
+              <button
+                onClick={(e) => openModal(tech, e.currentTarget)}
+                className="master-card p-6 flex flex-col justify-between group text-left w-full cursor-pointer h-full"
+                aria-label={`${tech.title} — ${tech.category}. Click to view technical specifications.`}
+                aria-haspopup="dialog"
+              >
+                <div className="space-y-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div
+                      className="w-12 h-12 rounded-xl flex items-center justify-center p-2 overflow-hidden shrink-0 transition-transform duration-300 group-hover:scale-110"
+                      style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-medium)' }}
+                    >
+                      <img
+                        src={tech.icon}
+                        alt={`${tech.title} logo`}
+                        className="w-full h-full object-contain"
+                        loading="lazy"
+                        width="48"
+                        height="48"
+                      />
+                    </div>
+                    <span className="code-badge shrink-0 mt-1">{tech.badge}</span>
                   </div>
 
-                  <span className="text-xs font-mono uppercase tracking-wider px-3 py-1 rounded bg-[#a3e635] text-[#07090e] font-extrabold">
-                    {tech.badge}
-                  </span>
+                  <div className="space-y-1.5">
+                    <p
+                      className="text-xs font-semibold uppercase tracking-widest"
+                      style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.14em' }}
+                    >
+                      {tech.category}
+                    </p>
+                    <h3
+                      className="font-semibold text-base leading-snug"
+                      style={{ color: 'var(--text-primary)' }}
+                    >
+                      {tech.title}
+                    </h3>
+                    <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                      {tech.shortDesc}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <span className="text-xs font-mono theme-text-secondary uppercase tracking-wider block font-semibold">{tech.category}</span>
-                  <h3 className="font-heading text-2xl font-bold theme-text-primary group-hover:text-[#a3e635] transition-colors">
-                    {tech.title}
-                  </h3>
-                  <p className="theme-text-secondary text-sm leading-relaxed font-normal">
-                    {tech.shortDesc}
-                  </p>
+                <div
+                  className="flex items-center justify-between mt-5 pt-4 text-xs font-semibold"
+                  style={{ borderTop: '1px solid var(--border-subtle)', color: 'var(--accent-cyan)' }}
+                  aria-hidden="true"
+                >
+                  <span>View Specifications</span>
+                  <ChevronRight size={14} className="group-hover:translate-x-1.5 transition-transform" />
                 </div>
-              </div>
-
-              <div className="pt-6 mt-6 border-t theme-border flex items-center justify-between text-xs font-semibold theme-text-primary group-hover:text-[#a3e635]">
-                <span>Inspect Specifications</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Tilt3DCard>
+              </button>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
 
-      {/* Tech Spec Deep-Dive Modal */}
-      {selectedTech && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn theme-text-primary">
-          <Tilt3DCard className="master-card max-w-xl w-full p-8 relative theme-bg-primary border theme-border">
-            <button
-              onClick={() => setSelectedTech(null)}
-              className="absolute top-4 right-4 p-2 theme-text-secondary hover:theme-text-primary rounded-md theme-bg-secondary border theme-border"
+      {/* Modal Dialog */}
+      {selected && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.78)', backdropFilter: 'blur(14px)' }}
+          role="presentation"
+          onClick={(e) => e.target === e.currentTarget && closeModal()}
+          aria-hidden="false"
+        >
+          <FocusTrap onClose={closeModal}>
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="modal-title"
+              aria-describedby="modal-desc"
+              className="master-card w-full max-w-lg p-8 relative animate-fade-up"
+              style={{ background: 'var(--bg-elevated)', maxHeight: '92vh', overflowY: 'auto' }}
             >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-14 h-14 rounded-2xl theme-bg-secondary border theme-border p-2.5 flex items-center justify-center">
-                <img src={selectedTech.icon} alt={selectedTech.title} className="w-full h-full object-contain" />
-              </div>
-              <div>
-                <span className="text-xs font-mono theme-text-secondary uppercase tracking-wider">{selectedTech.category}</span>
-                <h3 className="font-heading text-2xl font-bold theme-text-primary">{selectedTech.title}</h3>
-              </div>
-            </div>
-
-            <p className="theme-text-secondary text-sm mb-6 leading-relaxed">
-              {selectedTech.shortDesc}
-            </p>
-
-            <div className="space-y-3 mb-8">
-              <h4 className="text-xs font-mono uppercase tracking-wider theme-text-secondary border-b theme-border pb-2 font-bold">
-                Technical Specifications & Architecture
-              </h4>
-              {selectedTech.specs.map((spec, i) => (
-                <div key={i} className="flex items-start gap-3 text-sm theme-text-primary">
-                  <CheckCircle2 className="w-4 h-4 text-[#a3e635] shrink-0 mt-0.5" />
-                  <span>{spec}</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex justify-end gap-3">
+              {/* Close button */}
               <button
-                onClick={() => setSelectedTech(null)}
-                className="btn-master-secondary text-xs py-2.5 px-4"
+                onClick={closeModal}
+                className="absolute top-4 right-4 w-9 h-9 rounded-lg flex items-center justify-center transition-all"
+                style={{
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border-medium)',
+                  color: 'var(--text-muted)',
+                }}
+                aria-label="Close specifications dialog"
               >
-                Close Spec
+                <X size={16} aria-hidden="true" />
               </button>
-              <a
-                href="#contact"
-                onClick={() => setSelectedTech(null)}
-                className="btn-master-primary text-xs py-2.5 px-4"
-              >
-                Request Consultation
-              </a>
+
+              {/* Header */}
+              <div className="flex items-center gap-4 mb-6">
+                <div
+                  className="w-14 h-14 rounded-xl p-2.5 flex items-center justify-center overflow-hidden shrink-0"
+                  style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-medium)' }}
+                >
+                  <img
+                    src={selected.icon}
+                    alt={`${selected.title} logo`}
+                    className="w-full h-full object-contain"
+                    width="56"
+                    height="56"
+                  />
+                </div>
+                <div>
+                  <p
+                    className="text-xs uppercase tracking-widest"
+                    style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}
+                  >
+                    {selected.category}
+                  </p>
+                  <h2 id="modal-title" className="font-bold text-xl" style={{ color: 'var(--text-primary)' }}>
+                    {selected.title}
+                  </h2>
+                </div>
+              </div>
+
+              <p id="modal-desc" className="text-sm leading-relaxed mb-6" style={{ color: 'var(--text-secondary)' }}>
+                {selected.shortDesc}
+              </p>
+
+              {/* Specs */}
+              <div className="space-y-3 mb-8">
+                <h3
+                  className="text-xs uppercase tracking-widest font-bold pb-3"
+                  style={{
+                    color: 'var(--text-muted)',
+                    fontFamily: 'JetBrains Mono, monospace',
+                    borderBottom: '1px solid var(--border-subtle)',
+                  }}
+                >
+                  Technical Specifications
+                </h3>
+                <ul className="space-y-3 list-none p-0 m-0">
+                  {selected.specs.map((spec, i) => (
+                    <li key={i} className="flex items-start gap-3 text-sm" style={{ color: 'var(--text-primary)' }}>
+                      <CheckCircle2
+                        size={15}
+                        style={{ color: 'var(--accent-cyan)', flexShrink: 0, marginTop: '2px' }}
+                        aria-hidden="true"
+                      />
+                      <span>{spec}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3">
+                <button
+                  onClick={closeModal}
+                  className="btn-outline flex-1 justify-center py-2.5 text-sm"
+                >
+                  Close
+                </button>
+                <a
+                  href="#contact"
+                  onClick={closeModal}
+                  className="btn-primary flex-1 justify-center py-2.5 text-sm"
+                  aria-label={`Request consultation for ${selected.title}`}
+                >
+                  Request Consultation
+                </a>
+              </div>
             </div>
-          </Tilt3DCard>
+          </FocusTrap>
         </div>
       )}
     </section>

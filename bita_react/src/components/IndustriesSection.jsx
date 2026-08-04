@@ -1,89 +1,149 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import { useScrollReveal } from '../hooks/useAnimations';
 import { HeartPulse, Landmark, ShoppingBag, Factory, Car, Zap, ArrowRight } from 'lucide-react';
-import Tilt3DCard from './3d/Tilt3DCard';
 
-const industryVerticals = [
+const industries = [
   {
-    id: 'healthcare',
-    title: 'Healthcare & Life Sciences',
     icon: HeartPulse,
-    desc: 'HIPAA-compliant data pipelines, clinical trial analytics, and real-time patient care dashboards.'
+    title: 'Healthcare & Life Sciences',
+    desc: 'HIPAA-compliant data pipelines, clinical analytics, real-time patient dashboards, and automated regulatory reporting.',
+    color: '#ef4444',
+    tag: 'HIPAA Aligned',
+    useCase: 'Clinical trial data lakehouse for a 200-hospital network',
   },
   {
-    id: 'finance',
-    title: 'Banking & Financial Services',
     icon: Landmark,
-    desc: 'Ultra-low latency transaction indexing, fraud risk models, and automated compliance reporting.'
+    title: 'Banking & Financial Services',
+    desc: 'Low-latency transaction indexing, fraud detection models, automated regulatory compliance, and FRTB reporting pipelines.',
+    color: '#f59e0b',
+    tag: 'SOC 2 Ready',
+    useCase: 'Real-time fraud detection processing 350M+ transactions/day',
   },
   {
-    id: 'retail',
-    title: 'Retail & Consumer Goods',
     icon: ShoppingBag,
-    desc: 'Omnichannel inventory forecasting, customer lifetime value modeling, and supply chain ETL.'
+    title: 'Retail & Consumer Goods',
+    desc: 'Omnichannel inventory forecasting, CLV modeling, promotional uplift analytics, and supply chain ETL automation.',
+    color: '#8b5cf6',
+    tag: 'Omnichannel BI',
+    useCase: 'Inventory forecasting across 450+ retail locations',
   },
   {
-    id: 'manufacturing',
-    title: 'Industrial & Manufacturing',
     icon: Factory,
-    desc: 'IoT telemetry ingestion, predictive equipment maintenance, and factory floor BI insights.'
+    title: 'Industrial & Manufacturing',
+    desc: 'IoT telemetry ingestion, OEE dashboards, predictive maintenance ML models, and factory floor BI visibility.',
+    color: '#06b6d4',
+    tag: 'IoT / OT',
+    useCase: 'Predictive maintenance reducing unplanned downtime by 38%',
   },
   {
-    id: 'automotive',
-    title: 'Automotive & Mobility',
     icon: Car,
-    desc: 'Connected vehicle telemetry lakehouse, fleet management, and automated diagnostics.'
+    title: 'Automotive & Mobility',
+    desc: 'Connected vehicle telemetry lakehouse, fleet management pipelines, and automated diagnostics analytics at scale.',
+    color: '#10b981',
+    tag: 'Connected Fleet',
+    useCase: 'Fleet telemetry lakehouse — 2M+ daily vehicle events',
   },
   {
-    id: 'energy',
-    title: 'Energy & Smart Utilities',
     icon: Zap,
-    desc: 'Smart grid load balancing, renewable energy predictive models, and power usage analytics.'
-  }
+    title: 'Energy & Smart Utilities',
+    desc: 'Smart grid load balancing, renewable energy forecasting, power usage analytics, and demand response models.',
+    color: '#f97316',
+    tag: 'Smart Grid',
+    useCase: 'Renewable energy forecasting with 94% accuracy',
+  },
 ];
 
 export default function IndustriesSection() {
+  const ref = useRef(null);
+  useScrollReveal(ref);
+
   return (
-    <section className="section-padding theme-bg-primary border-y theme-border" id="industries">
+    <section
+      id="industries"
+      ref={ref}
+      aria-labelledby="industries-heading"
+      className="section-padding"
+      style={{ background: 'var(--bg-primary)', borderBottom: '1px solid var(--border-subtle)' }}
+    >
       <div className="container">
-        {/* Section Header */}
-        <div className="max-w-5xl mb-16 space-y-4">
-          <div className="section-badge-master">
-            <span>Industry Verticals</span>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
+          <div className="space-y-4">
+            <div className="section-badge w-fit reveal">Industry Verticals</div>
+            <h2 id="industries-heading" className="section-title reveal reveal-delay-1">
+              Deep Expertise Across <strong>Every Industry</strong>
+            </h2>
           </div>
-          <h2 className="section-title-master theme-text-primary sm:whitespace-nowrap">
-            Tailored Engineering for <span className="text-[#a3e635] bg-[var(--bg-secondary)] border theme-border px-2 py-0.5 rounded">Global Industries</span>
-          </h2>
-          <p className="section-subtitle-master theme-text-secondary">
-            Deep domain expertise paired with cutting-edge cloud data engineering and AI software solutions.
+          <p className="section-subtitle reveal reveal-delay-2" style={{ maxWidth: '380px', fontSize: '0.95rem' }}>
+            We bring domain-specific data patterns, compliance frameworks, and industry benchmarks — not generic consulting.
           </p>
         </div>
 
-        {/* Industries Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {industryVerticals.map((ind) => (
-            <Tilt3DCard key={ind.id} className="master-card p-8 flex flex-col justify-between group cursor-pointer">
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="w-12 h-12 rounded-xl theme-bg-secondary text-[#a3e635] flex items-center justify-center group-hover:bg-[#a3e635] group-hover:text-[#07090e] transition-colors border theme-border">
-                    <ind.icon className="w-6 h-6" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {industries.map((ind, i) => (
+            <article
+              key={ind.title}
+              className={`master-card p-6 flex flex-col justify-between group reveal reveal-delay-${(i % 3) + 1}`}
+              aria-label={ind.title}
+            >
+              <div className="space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div
+                    className="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+                    style={{ background: `${ind.color}14`, border: `1px solid ${ind.color}28` }}
+                  >
+                    <ind.icon size={20} style={{ color: ind.color }} aria-hidden="true" />
                   </div>
+                  <span
+                    className="text-[0.68rem] font-bold px-2 py-1 rounded-md whitespace-nowrap"
+                    style={{
+                      background: `${ind.color}12`,
+                      color: ind.color,
+                      border: `1px solid ${ind.color}20`,
+                      letterSpacing: '0.06em',
+                    }}
+                  >
+                    {ind.tag}
+                  </span>
                 </div>
 
-                <div className="space-y-2">
-                  <h3 className="font-heading text-2xl font-bold theme-text-primary group-hover:text-[#a3e635] transition-colors">
+                <div className="space-y-1.5">
+                  <h3 className="font-bold text-base" style={{ color: 'var(--text-primary)' }}>
                     {ind.title}
                   </h3>
-                  <p className="theme-text-secondary text-sm leading-relaxed font-normal">
+                  <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                     {ind.desc}
                   </p>
                 </div>
+
+                {/* Example use case */}
+                <div
+                  className="text-xs p-3 rounded-lg italic"
+                  style={{
+                    background: `${ind.color}08`,
+                    border: `1px solid ${ind.color}18`,
+                    color: 'var(--text-muted)',
+                  }}
+                >
+                  e.g. {ind.useCase}
+                </div>
               </div>
 
-              <div className="pt-6 mt-6 border-t theme-border flex items-center justify-between text-xs font-semibold theme-text-primary group-hover:text-[#a3e635]">
-                <span>Explore Solutions</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Tilt3DCard>
+              <a
+                href="#contact"
+                className="flex items-center justify-between mt-5 pt-4 text-xs font-semibold"
+                style={{ borderTop: '1px solid var(--border-subtle)', color: ind.color, textDecoration: 'none' }}
+                aria-label={`Explore data solutions for ${ind.title}`}
+              >
+                <span className="group-hover:underline transition-all">
+                  Discuss Your Requirements
+                </span>
+                <ArrowRight
+                  size={14}
+                  className="group-hover:translate-x-1 transition-transform"
+                  aria-hidden="true"
+                />
+              </a>
+            </article>
           ))}
         </div>
       </div>

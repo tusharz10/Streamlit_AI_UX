@@ -1,134 +1,168 @@
 import React from 'react';
-import { Award, ShieldCheck, CheckCircle2, ExternalLink } from 'lucide-react';
-import Tilt3DCard from './3d/Tilt3DCard';
+import { Award, CheckCircle2, ExternalLink, ShieldCheck, Star } from 'lucide-react';
 
 const certificationBadges = [
   {
-    id: 1,
-    title: 'Databricks Data Engineer Professional',
+    id: 1, title: 'Databricks Data Engineer Professional',
     subtitle: 'Databricks Certified Professional',
-    badge: '/badges/1.svg',
+    badge: '/badges/1.svg', code: 'DB-PRO',
     desc: 'Advanced PySpark distributed processing, Delta Lake ACID optimizations, performance tuning, and enterprise ETL pipelines.',
-    code: 'DB-PRO'
   },
   {
-    id: 2,
-    title: 'Databricks GenAI Engineer Associate',
+    id: 2, title: 'Databricks GenAI Engineer Associate',
     subtitle: 'Databricks Certified Specialist',
-    badge: '/badges/2.svg',
+    badge: '/badges/2.svg', code: 'DB-GENAI',
     desc: 'Generative AI model fine-tuning, RAG architecture, LLM agent orchestration, and MLflow experiment tracking.',
-    code: 'DB-GENAI'
   },
   {
-    id: 3,
-    title: 'Power BI Data Analyst Associate',
-    subtitle: 'Microsoft Certified Professional',
-    badge: '/badges/3.svg',
+    id: 3, title: 'Power BI Data Analyst Associate',
+    subtitle: 'Microsoft Certified',
+    badge: '/badges/3.svg', code: 'PL-300',
     desc: 'Advanced DAX modeling, interactive report design, Row-Level Security (RLS), and enterprise Power BI governance.',
-    code: 'PL-300'
   },
   {
-    id: 4,
-    title: 'Microsoft Fabric Data Engineer Associate',
-    subtitle: 'Microsoft Certified Professional',
-    badge: '/badges/4.svg',
+    id: 4, title: 'Microsoft Fabric Data Engineer Associate',
+    subtitle: 'Microsoft Certified',
+    badge: '/badges/4.svg', code: 'DP-700',
     desc: 'Unified SaaS OneLake lakehouse architecture, Direct Lake mode execution, Data Factory pipelines, and PySpark engineering.',
-    code: 'DP-700'
   },
   {
-    id: 5,
-    title: 'Azure Fundamentals',
-    subtitle: 'Microsoft Certified Professional',
-    badge: '/badges/5.svg',
+    id: 5, title: 'Azure Fundamentals',
+    subtitle: 'Microsoft Certified',
+    badge: '/badges/5.svg', code: 'AZ-900',
     desc: 'Core Azure cloud services, security governance, virtual networks, identity management, and SLA compliance.',
-    code: 'AZ-900'
   },
   {
-    id: 6,
-    title: 'Palantir Foundry Aware Specialist',
-    subtitle: 'Palantir Certified Data Engineer',
-    badge: '/badges/6.svg',
+    id: 6, title: 'Palantir Foundry Aware Specialist',
+    subtitle: 'Palantir Certified Engineer',
+    badge: '/badges/6.svg', code: 'FOUNDRY',
     desc: 'Palantir Foundry ontology building, data pipeline transformations, contour analytics, and enterprise data integration.',
-    code: 'FOUNDRY'
-  }
+  },
 ];
 
 export default function CertifiedTeamSection() {
   return (
-    <section className="section-padding theme-bg-secondary border-y theme-border" id="certified-teams">
+    <section
+      id="certified-teams"
+      aria-labelledby="certs-heading"
+      className="section-padding"
+      style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-subtle)' }}
+    >
       <div className="container">
-        {/* Section Header */}
-        <div className="max-w-5xl mb-16 space-y-4">
-          <div className="section-badge-master">
-            <Award className="w-4 h-4 text-[#a3e635]" />
-            <span>Certified Developer Teams</span>
+
+        {/* Header */}
+        <div className="max-w-3xl mb-14 space-y-4">
+          <div className="section-badge w-fit">
+            <Award size={13} aria-hidden="true" />
+            Certified Developer Teams
           </div>
-          <h2 className="section-title-master theme-text-primary sm:whitespace-nowrap">
-            We Have <span className="text-[#a3e635] bg-[var(--bg-secondary)] border theme-border px-2.5 py-0.5 rounded">Certified Developer Teams</span>
+          <h2 id="certs-heading" className="section-title">
+            100%{' '}
+            <strong>Certified</strong> Enterprise Engineering
           </h2>
-          <p className="section-subtitle-master theme-text-secondary">
-            Our engineering organization is composed of certified Microsoft Azure Data Engineers, Fabric Analytics Engineers, Power BI Analysts, and Cloud Architects.
+          <p className="section-subtitle">
+            Every engineer on our team holds active, verified certifications from Microsoft, Databricks, and Palantir. No junior generalists — only production-proven specialists.
           </p>
         </div>
 
-        {/* Badge Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Badges Grid */}
+        <ul
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 list-none p-0 m-0"
+          role="list"
+          aria-label="Professional certifications"
+        >
           {certificationBadges.map((cert) => (
-            <Tilt3DCard key={cert.id} className="master-card p-8 flex flex-col justify-between group">
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  {/* Badge Image */}
-                  <div className="w-20 h-20 rounded-2xl theme-bg-primary border theme-border p-2 flex items-center justify-center group-hover:scale-105 transition-transform">
-                    <img 
-                      src={cert.badge} 
-                      alt={cert.title} 
-                      className="w-full h-full object-contain drop-shadow-md"
-                    />
+            <li key={cert.id} role="listitem">
+              <article
+                className="master-card p-6 flex flex-col justify-between group h-full"
+                aria-label={`${cert.title} — ${cert.subtitle}`}
+              >
+                <div className="space-y-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div
+                      className="w-16 h-16 rounded-xl flex items-center justify-center p-2 shrink-0 transition-transform duration-300 group-hover:scale-105"
+                      style={{ background: 'var(--bg-primary)', border: '1px solid var(--border-medium)' }}
+                    >
+                      <img
+                        src={cert.badge}
+                        alt={`${cert.title} certification badge`}
+                        className="w-full h-full object-contain drop-shadow"
+                        loading="lazy"
+                        width="64"
+                        height="64"
+                      />
+                    </div>
+                    <span
+                      className="code-badge shrink-0 mt-1"
+                      aria-label={`Certification code: ${cert.code}`}
+                    >
+                      {cert.code}
+                    </span>
                   </div>
 
-                  <span className="text-xs font-mono font-bold uppercase tracking-wider px-3 py-1 rounded bg-[#a3e635] text-[#07090e]">
-                    {cert.code}
-                  </span>
+                  <div className="space-y-1.5">
+                    <p
+                      className="text-xs font-semibold uppercase tracking-widest"
+                      style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.15em' }}
+                    >
+                      {cert.subtitle}
+                    </p>
+                    <h3 className="font-semibold text-base leading-snug" style={{ color: 'var(--text-primary)' }}>
+                      {cert.title}
+                    </h3>
+                    <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                      {cert.desc}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <span className="text-xs font-mono theme-text-secondary uppercase tracking-wider block font-semibold">
-                    {cert.subtitle}
+                <div
+                  className="flex items-center justify-between mt-5 pt-4 text-xs font-semibold"
+                  style={{ borderTop: '1px solid var(--border-subtle)' }}
+                >
+                  <span className="flex items-center gap-1.5" style={{ color: 'var(--accent-cyan)' }}>
+                    <CheckCircle2 size={14} aria-hidden="true" />
+                    Official Credential
                   </span>
-                  <h3 className="font-heading text-2xl font-bold theme-text-primary">
-                    {cert.title}
-                  </h3>
-                  <p className="theme-text-secondary text-sm leading-relaxed font-normal">
-                    {cert.desc}
-                  </p>
+                  <span
+                    className="uppercase tracking-widest"
+                    style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', fontSize: '0.65rem' }}
+                    aria-label="Verified certification"
+                  >
+                    Verified
+                  </span>
                 </div>
-              </div>
-
-              <div className="pt-6 mt-6 border-t theme-border flex items-center justify-between text-xs font-semibold theme-text-primary">
-                <span className="flex items-center gap-1.5 text-[#a3e635] font-bold">
-                  <CheckCircle2 className="w-4 h-4" /> Official Credential
-                </span>
-                <span className="font-mono theme-text-secondary">VERIFIED</span>
-              </div>
-            </Tilt3DCard>
+              </article>
+            </li>
           ))}
-        </div>
+        </ul>
 
-        {/* Trust Proof Banner */}
-        <div className="mt-16 p-8 rounded-2xl theme-bg-primary theme-text-primary flex flex-col md:flex-row items-center justify-between gap-8 border theme-border shadow-2xl">
+        {/* Trust Banner */}
+        <div
+          className="mt-12 p-8 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6"
+          style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-medium)' }}
+          role="complementary"
+          aria-label="Certification guarantee"
+        >
           <div className="space-y-2 text-center md:text-left">
-            <h3 className="font-heading text-2xl font-extrabold theme-text-primary flex items-center justify-center md:justify-start gap-2">
-              <ShieldCheck className="w-7 h-7 text-[#a3e635]" />
-              <span>100% Certified Enterprise Engineering Force</span>
+            <h3
+              className="font-semibold text-xl flex items-center justify-center md:justify-start gap-2"
+              style={{ color: 'var(--text-primary)' }}
+            >
+              <ShieldCheck size={22} style={{ color: 'var(--accent-cyan)' }} aria-hidden="true" />
+              Every deployment architected by certified professionals
             </h3>
-            <p className="theme-text-secondary text-sm font-normal">
-              Every data pipeline, report, and cloud deployment is architected by certified professionals with proven enterprise credentials.
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+              Verified credentials from Microsoft, Databricks, and Palantir — across all practice areas. No subcontracting.
             </p>
           </div>
-
-          <a href="#contact" className="btn-master-primary shrink-0 text-sm py-3.5 px-6">
+          <a
+            href="#contact"
+            className="btn-primary shrink-0"
+            aria-label="Request engagement with our certified team"
+          >
             <span>Engage Certified Team</span>
-            <ExternalLink className="w-4 h-4" />
+            <ExternalLink size={15} aria-hidden="true" />
           </a>
         </div>
       </div>

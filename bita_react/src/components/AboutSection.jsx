@@ -1,83 +1,131 @@
-import React from 'react';
-import { ShieldCheck, Award, Users, Terminal, Globe, Cpu } from 'lucide-react';
-import Tilt3DCard from './3d/Tilt3DCard';
+import React, { useRef } from 'react';
+import { useScrollReveal } from '../hooks/useAnimations';
+import { Award, Globe, Terminal, Users, ArrowRight, CheckCircle2 } from 'lucide-react';
+
+const pillars = [
+  { icon: Award, label: 'Certified Architects', sub: 'Azure, Databricks & Palantir' },
+  { icon: Globe, label: 'Global Operations', sub: '24/7 Enterprise Support' },
+  { icon: Terminal, label: 'Production-Proven', sub: '500+ Enterprise Deliveries' },
+  { icon: Users, label: 'Dedicated Teams', sub: 'No shared resource pools' },
+];
+
+const values = [
+  'Built on radical transparency — no hidden costs, no scope creep surprises',
+  'Every architecture reviewed by at least 2 certified engineers before delivery',
+  'Source code, pipelines, and data models fully owned by you on day one',
+  'English-first communication — CDO-level stakeholder reporting',
+];
 
 export default function AboutSection() {
+  const ref = useRef(null);
+  useScrollReveal(ref);
+
   return (
-    <section className="section-padding theme-bg-secondary border-y theme-border" id="about">
-      <div className="container">
-        {/* Header */}
-        <div className="max-w-3xl mb-16 space-y-4">
-          <div className="section-badge-master">
-            <span>About BITA CLOUD INFO TECH</span>
+    <section
+      id="about"
+      ref={ref}
+      aria-labelledby="about-heading"
+      className="section-padding"
+      style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-subtle)', position: 'relative', overflow: 'hidden' }}
+    >
+      {/* Decorative grid fade */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute', inset: 0,
+          backgroundImage: `linear-gradient(var(--border-subtle) 1px, transparent 1px), linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px)`,
+          backgroundSize: '64px 64px',
+          opacity: 0.4,
+          maskImage: 'radial-gradient(ellipse 70% 60% at 80% 50%, black 0%, transparent 100%)',
+          WebkitMaskImage: 'radial-gradient(ellipse 70% 60% at 80% 50%, black 0%, transparent 100%)',
+          pointerEvents: 'none',
+        }}
+      />
+
+      <div className="container relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+
+          {/* Left content */}
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <div className="section-badge w-fit reveal">About BITA CLOUD INFO TECH</div>
+              <h2 id="about-heading" className="section-title reveal reveal-delay-1">
+                Built by engineers,<br /><strong>for engineers.</strong>
+              </h2>
+              <p className="section-subtitle reveal reveal-delay-2">
+                BITA CLOUD INFO TECH is a specialist Azure Data &amp; AI engineering firm. We don't do "digital transformation" — we build real data infrastructure that processes hundreds of millions of records, powers C-suite dashboards, and runs autonomously.
+              </p>
+            </div>
+
+            {/* Values */}
+            <ul className="space-y-3 reveal reveal-delay-3 list-none p-0 m-0">
+              {values.map((v, i) => (
+                <li key={i} className="flex items-start gap-3 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                  <CheckCircle2
+                    size={15}
+                    style={{ color: 'var(--accent-cyan)', flexShrink: 0, marginTop: '2px' }}
+                    aria-hidden="true"
+                  />
+                  {v}
+                </li>
+              ))}
+            </ul>
+
+            <a href="#contact" className="btn-primary reveal reveal-delay-4 w-fit" aria-label="Partner with BITA CLOUD">
+              <span>Partner With Us</span>
+              <ArrowRight size={16} aria-hidden="true" />
+            </a>
           </div>
-          <h2 className="section-title-master theme-text-primary">
-            Combining Technology with <span className="text-[var(--accent-lime)] bg-[var(--bg-primary)] border theme-border px-2 py-0.5 rounded">Human Creativity</span>
-          </h2>
-          <p className="section-subtitle-master theme-text-secondary">
-            Global technology consulting firm dedicated to building trusted enterprise architectures, automated ETL pipelines, and high-performance software products.
-          </p>
-        </div>
 
-        {/* Story Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          <Tilt3DCard className="lg:col-span-7 master-card p-8 md:p-10 space-y-6">
-            <h3 className="font-heading text-3xl font-extrabold theme-text-primary flex items-center gap-3">
-              <Terminal className="w-7 h-7 text-[var(--accent-lime)] bg-[var(--bg-secondary)] border theme-border p-1 rounded-md" />
-              <span>Enterprise Software & Data Engineering</span>
-            </h3>
-
-            <p className="theme-text-secondary text-base leading-relaxed font-normal">
-              At <strong className="theme-text-primary font-semibold">BITA CLOUD INFO TECH</strong>, we combine world-class software engineering with human creativity. Our team of certified cloud architects and data engineers design robust pipelines, interactive Power BI visualizations, and secure database backends tailored to accelerate business growth.
-            </p>
-
-            <p className="theme-text-secondary text-base leading-relaxed font-normal">
-              Whether modernizing legacy data systems into Microsoft Fabric or building automated Azure Data Factory workflows, we ensure seamless scalability, top-tier security, and real-time operational clarity for Fortune 500 enterprises.
-            </p>
-
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t theme-border">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg theme-bg-secondary border theme-border text-[var(--accent-lime)] flex items-center justify-center">
-                  <Award className="w-5 h-5" />
+          {/* Right — pillars + careers */}
+          <div className="space-y-5">
+            {/* Pillar grid */}
+            <div className="grid grid-cols-2 gap-4 reveal reveal-delay-2">
+              {pillars.map((p, i) => (
+                <div
+                  key={p.label}
+                  className="grad-border-card p-5 space-y-3"
+                  style={{ background: 'var(--bg-card)' }}
+                >
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center"
+                    style={{ background: 'var(--accent-cyan-dim)', border: '1px solid var(--border-strong)' }}
+                  >
+                    <p.icon size={18} style={{ color: 'var(--accent-cyan)' }} aria-hidden="true" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>{p.label}</p>
+                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{p.sub}</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-sm font-bold theme-text-primary">Certified Architects</h4>
-                  <p className="text-xs theme-text-muted">Azure & Fabric Experts</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg theme-bg-secondary border theme-border text-[var(--accent-lime)] flex items-center justify-center">
-                  <Globe className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold theme-text-primary">Global Operations</h4>
-                  <p className="text-xs theme-text-muted">24/7 Enterprise Support</p>
-                </div>
-              </div>
-            </div>
-          </Tilt3DCard>
-
-          {/* Careers Recruitment Banner */}
-          <Tilt3DCard className="lg:col-span-5 master-card p-8 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full theme-bg-secondary border theme-border text-[var(--accent-lime)] text-xs font-mono tracking-wider uppercase font-bold">
-              <span>Careers at BITA</span>
+              ))}
             </div>
 
-            <h3 className="font-heading text-3xl font-extrabold theme-text-primary leading-tight">
-              Join Our Global Engineering Team.
-            </h3>
-
-            <p className="theme-text-secondary text-sm leading-relaxed font-normal">
-              We are always seeking visionaries, cloud architects, data engineers, and AI developers to build the future of enterprise technology.
-            </p>
-
-            <div className="pt-4">
-              <a href="#contact" className="btn-master-primary w-full justify-center text-sm py-3.5">
-                <span>View Career Opportunities</span>
+            {/* Careers card */}
+            <div
+              className="grad-border-card p-7 space-y-4 reveal reveal-delay-3"
+              style={{ background: 'var(--bg-card)' }}
+            >
+              <div className="section-badge w-fit">Careers at BITA</div>
+              <h3 className="font-bold text-xl" style={{ color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+                Join our global engineering team.
+              </h3>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                We're always seeking certified Azure architects, Databricks engineers, and Power BI specialists. Remote-first. High-ownership roles.
+              </p>
+              <ul className="space-y-2 text-sm list-none p-0 m-0" style={{ color: 'var(--text-secondary)' }}>
+                {['Azure &amp; Databricks data engineering', 'Power BI &amp; analytics consulting', 'AI/ML model development &amp; MLOps', 'Remote-first · Flexible hours'].map((item, i) => (
+                  <li key={i} className="flex items-center gap-2">
+                    <span style={{ color: 'var(--accent-cyan)', fontWeight: 700, flexShrink: 0 }}>→</span>
+                    <span dangerouslySetInnerHTML={{ __html: item }} />
+                  </li>
+                ))}
+              </ul>
+              <a href="#contact" className="btn-outline w-full justify-center" aria-label="View career opportunities at BITA CLOUD">
+                View Career Opportunities
               </a>
             </div>
-          </Tilt3DCard>
+          </div>
         </div>
       </div>
     </section>

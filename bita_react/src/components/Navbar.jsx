@@ -1,193 +1,295 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Menu, X, MessageSquare, ArrowRight, Sun, Moon } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { MessageSquare, Menu, X, Sun, Moon, ArrowRight, ChevronDown } from 'lucide-react';
 
 const getInitialTheme = () => {
-  const savedTheme = localStorage.getItem('bita_theme_user_choice');
-  if (savedTheme === 'dark' || savedTheme === 'light') {
-    return savedTheme;
-  }
-  // Fallback to system OS preference
-  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    return 'dark';
-  }
-  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-    return 'light';
-  }
-  return 'dark';
+  if (typeof window === 'undefined') return 'dark';
+  const saved = localStorage.getItem('bita_theme');
+  if (saved === 'dark' || saved === 'light') return saved;
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 };
 
-export default function Navbar() {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [theme, setTheme] = useState(getInitialTheme);
+const navLinks = [
+  { label: 'Capabilities', href: '#services' },
+  { label: 'Process', href: '#process' },
+  { label: 'Pricing', href: '#pricing' },
+  { label: 'Industries', href: '#industries' },
+  { label: 'About', href: '#about' },
+  { label: 'FAQ', href: '#faq' },
+];
 
+export default function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [theme, setTheme] = useState(getInitialTheme);
+  const mobileMenuRef = useRef(null);
+  const hamburgerRef = useRef(null);
+
+  /* Scroll handler */
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 30);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Sync theme with HTML document element
+  /* Apply theme */
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.style.colorScheme = theme;
+    localStorage.setItem('bita_theme', theme);
   }, [theme]);
 
-  // Listen to OS system preference changes (if user has not set an explicit override)
+  /* Trap focus inside mobile menu */
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleSystemThemeChange = (e) => {
-      const savedUserChoice = localStorage.getItem('bita_theme_user_choice');
-      if (!savedUserChoice) {
-        setTheme(e.matches ? 'dark' : 'light');
+    if (!mobileOpen) return;
+    const menu = mobileMenuRef.current;
+    if (!menu) return;
+
+    const focusables = menu.querySelectorAll(
+      'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+
+    const trap = (e) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey ? document.activeElement === first : document.activeElement === last) {
+          e.preventDefault();
+          (e.shiftKey ? last : first).focus();
+        }
+      }
+      if (e.key === 'Escape') {
+        setMobileOpen(false);
+        hamburgerRef.current?.focus();
       }
     };
 
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener('change', handleSystemThemeChange);
-      return () => mediaQuery.removeEventListener('change', handleSystemThemeChange);
-    }
-  }, []);
+    document.addEventListener('keydown', trap);
+    first?.focus();
+    return () => document.removeEventListener('keydown', trap);
+  }, [mobileOpen]);
 
-  const toggleTheme = () => {
-    const nextTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(nextTheme);
-    localStorage.setItem('bita_theme_user_choice', nextTheme);
-  };
+  /* Prevent body scroll when menu open */
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileOpen]);
+
+  const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark');
+  const closeMobile = () => { setMobileOpen(false); hamburgerRef.current?.focus(); };
 
   return (
-    <header 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-[var(--nav-bg)] backdrop-blur-md border-b border-[var(--border-light)] py-4 shadow-2xl' 
-          : 'bg-transparent py-6 border-b border-[var(--border-light)]'
-      }`}
-    >
-      <div className="container flex items-center justify-between">
-        {/* Brand Logo */}
-        <a href="#" className="flex items-center gap-3 group text-decoration-none">
-          <div className="w-10 h-10 rounded-xl theme-bg-secondary border theme-border p-1 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform overflow-hidden">
-            <img src="/Bitacloudinfotechtransparent.png" alt="BITA Cloud Info Tech" className="w-full h-full object-contain" />
-          </div>
-          <div className="flex flex-col">
-            <span className="font-heading font-extrabold text-xl tracking-tight text-[var(--text-primary)]">
-              BITA <span className="text-[#a3e635] bg-[var(--bg-secondary)] border border-[var(--border-light)] px-1.5 py-0.5 rounded text-sm ml-1">CLOUD</span>
-            </span>
-          </div>
-        </a>
+    <>
+      <header
+        role="banner"
+        style={{
+          background: scrolled ? 'var(--nav-bg)' : 'transparent',
+          borderBottom: scrolled ? '1px solid var(--border-subtle)' : '1px solid transparent',
+          backdropFilter: scrolled ? 'blur(20px)' : 'none',
+          WebkitBackdropFilter: scrolled ? 'blur(20px)' : 'none',
+          boxShadow: scrolled ? '0 2px 32px rgba(0,0,0,0.30)' : 'none',
+          transition: 'all 0.3s ease',
+        }}
+        className="fixed top-0 left-0 right-0 z-50"
+      >
+        <div className="container">
+          <div className="flex items-center justify-between h-16 md:h-20">
 
-        {/* Desktop Nav Links */}
-        <nav className="hidden lg:flex items-center gap-8">
-          <a href="#certified-teams" className="text-sm font-semibold text-[var(--text-primary)] hover:text-[#a3e635] transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#a3e635] hover:after:w-full after:transition-all">
-            Certified Teams
-          </a>
-          <a href="#industries" className="text-sm font-semibold text-[var(--text-primary)] hover:text-[#a3e635] transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#a3e635] hover:after:w-full after:transition-all">
-            Industries
-          </a>
-          <a href="#services" className="text-sm font-semibold text-[var(--text-primary)] hover:text-[#a3e635] transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#a3e635] hover:after:w-full after:transition-all">
-            Services & Stack
-          </a>
-          <a href="#about" className="text-sm font-semibold text-[var(--text-primary)] hover:text-[#a3e635] transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-[#a3e635] hover:after:w-full after:transition-all">
-            About BITA
-          </a>
-        </nav>
-
-        {/* Right Action Icons & Buttons */}
-        <div className="hidden sm:flex items-center gap-4">
-          {/* Theme Switcher Toggle Logo Button */}
-          <button 
-            onClick={toggleTheme}
-            className="p-2.5 rounded-full bg-[var(--bg-secondary)] border border-[var(--border-light)] text-[var(--text-primary)] hover:border-[#a3e635] hover:text-[#a3e635] transition-all flex items-center justify-center shadow-sm group"
-            title={`Active Theme: ${theme.toUpperCase()} (Click to switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode)`}
-            aria-label="Toggle Theme"
-          >
-            {theme === 'dark' ? (
-              <Sun className="w-5 h-5 text-[#a3e635] group-hover:rotate-90 transition-transform duration-500" />
-            ) : (
-              <Moon className="w-5 h-5 text-[#111111] group-hover:-rotate-45 transition-transform duration-500" />
-            )}
-          </button>
-
-          <button className="p-2 text-[var(--text-primary)] hover:text-[#a3e635] transition-colors" aria-label="Search">
-            <Search className="w-5 h-5" />
-          </button>
-
-          <a 
-            href="https://wa.me/918982296014" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="btn-whatsapp-master text-xs py-2.5 px-4"
-          >
-            <MessageSquare className="w-4 h-4 fill-white" />
-            <span>WhatsApp Direct</span>
-          </a>
-
-          <a 
-            href="#contact" 
-            className="btn-master-primary text-xs py-2.5 px-5"
-          >
-            <span>Contact Us</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </a>
-        </div>
-
-        {/* Mobile Hamburger Button & Theme Switcher */}
-        <div className="flex items-center gap-2 sm:hidden">
-          <button 
-            onClick={toggleTheme}
-            className="p-2 rounded-full bg-[var(--bg-secondary)] border border-[var(--border-light)] text-[var(--text-primary)]"
-            aria-label="Toggle Theme"
-          >
-            {theme === 'dark' ? <Sun className="w-4 h-4 text-[#a3e635]" /> : <Moon className="w-4 h-4 text-[#111111]" />}
-          </button>
-
-          <button 
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-[var(--text-primary)] bg-[var(--bg-secondary)] border border-[var(--border-light)] rounded-md"
-            aria-label="Toggle Menu"
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden bg-[var(--nav-bg)] backdrop-blur-2xl border-b border-[var(--border-light)] px-6 py-6 transition-all">
-          <div className="flex flex-col gap-4">
-            <a href="#certified-teams" onClick={() => setMobileMenuOpen(false)} className="text-base font-semibold text-[var(--text-primary)] py-2 border-b border-[var(--border-light)]">
-              Certified Teams
+            {/* Logo */}
+            <a
+              href="#"
+              className="flex items-center gap-2.5 shrink-0 group"
+              aria-label="BITA CLOUD INFO TECH — Home"
+            >
+              <div
+                className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105"
+                style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-medium)' }}
+              >
+                <img
+                  src="/Bitacloudinfotechtransparent.png"
+                  alt="BITA CLOUD INFO TECH logo"
+                  className="w-full h-full object-contain p-1"
+                  width="36"
+                  height="36"
+                />
+              </div>
+              <div className="hidden sm:block leading-none">
+                <span className="font-bold text-base tracking-tight" style={{ color: 'var(--text-primary)', fontFamily: 'Inter, sans-serif' }}>
+                  BITA{' '}
+                  <span
+                    style={{
+                      color: 'var(--accent-cyan)',
+                      fontFamily: 'JetBrains Mono, monospace',
+                      fontSize: '0.68rem',
+                      letterSpacing: '0.12em',
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      background: 'var(--accent-cyan-dim)',
+                      border: '1px solid rgba(0,229,255,0.2)',
+                      verticalAlign: 'middle',
+                    }}
+                  >
+                    CLOUD
+                  </span>
+                </span>
+                <div
+                  className="text-xs mt-0.5"
+                  style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', fontSize: '0.62rem', letterSpacing: '0.08em' }}
+                >
+                  Data &amp; AI Engineering
+                </div>
+              </div>
             </a>
-            <a href="#industries" onClick={() => setMobileMenuOpen(false)} className="text-base font-semibold text-[var(--text-primary)] py-2 border-b border-[var(--border-light)]">
-              Industries
-            </a>
-            <a href="#services" onClick={() => setMobileMenuOpen(false)} className="text-base font-semibold text-[var(--text-primary)] py-2 border-b border-[var(--border-light)]">
-              Services & Stack
-            </a>
-            <a href="#about" onClick={() => setMobileMenuOpen(false)} className="text-base font-semibold text-[var(--text-primary)] py-2 border-b border-[var(--border-light)]">
-              About BITA
-            </a>
-            <div className="pt-2 flex flex-col gap-3">
-              <a 
-                href="https://wa.me/918982296014" 
-                target="_blank" 
+
+            {/* Desktop Nav */}
+            <nav
+              className="hidden lg:flex items-center gap-0.5"
+              role="navigation"
+              aria-label="Main navigation"
+            >
+              {navLinks.map((link) => (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+                  style={{ color: 'var(--text-secondary)', textDecoration: 'none' }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.color = 'var(--text-primary)';
+                    e.currentTarget.style.background = 'var(--bg-hover)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.color = 'var(--text-secondary)';
+                    e.currentTarget.style.background = 'transparent';
+                  }}
+                >
+                  {link.label}
+                </a>
+              ))}
+            </nav>
+
+            {/* Right Actions */}
+            <div className="flex items-center gap-2">
+
+              {/* Theme Toggle */}
+              <button
+                onClick={toggleTheme}
+                className="theme-toggle"
+                aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+                title={`Currently ${theme} mode`}
+                id="theme-toggle-btn"
+              >
+                {theme === 'dark'
+                  ? <Sun size={17} strokeWidth={2} aria-hidden="true" />
+                  : <Moon size={17} strokeWidth={2} aria-hidden="true" />
+                }
+              </button>
+
+              {/* WhatsApp */}
+              <a
+                href="https://wa.me/918982296014"
+                target="_blank"
                 rel="noopener noreferrer"
-                className="btn-whatsapp-master w-full justify-center py-3 text-sm"
+                className="hidden sm:inline-flex btn-whatsapp text-xs py-2 px-3"
+                aria-label="Chat with us on WhatsApp — +91 89822 96014"
               >
-                <span>WhatsApp Direct (+91 89822 96014)</span>
+                <MessageSquare size={14} className="fill-white" aria-hidden="true" />
+                <span className="hidden md:inline">WhatsApp</span>
               </a>
-              <a 
-                href="#contact" 
-                onClick={() => setMobileMenuOpen(false)}
-                className="btn-master-primary w-full justify-center py-3 text-sm"
+
+              {/* Contact CTA */}
+              <a
+                href="#contact"
+                className="btn-primary text-xs py-2 px-4 hidden sm:inline-flex"
               >
-                <span>Contact Us</span>
+                <span>Book a Call</span>
+                <ArrowRight size={14} aria-hidden="true" />
               </a>
+
+              {/* Mobile Menu Toggle */}
+              <button
+                ref={hamburgerRef}
+                onClick={() => setMobileOpen(o => !o)}
+                className="lg:hidden theme-toggle"
+                aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
+                aria-expanded={mobileOpen}
+                aria-controls="mobile-nav"
+              >
+                {mobileOpen
+                  ? <X size={18} aria-hidden="true" />
+                  : <Menu size={18} aria-hidden="true" />
+                }
+              </button>
             </div>
           </div>
         </div>
+      </header>
+
+      {/* Mobile Menu Drawer */}
+      <div
+        id="mobile-nav"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Navigation menu"
+        ref={mobileMenuRef}
+        className="lg:hidden fixed inset-0 z-40 pt-16"
+        style={{
+          background: 'var(--bg-primary)',
+          transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
+          transition: 'transform 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
+          pointerEvents: mobileOpen ? 'auto' : 'none',
+        }}
+        aria-hidden={!mobileOpen}
+      >
+        <div className="container py-6 flex flex-col gap-1 h-full overflow-y-auto">
+          <nav aria-label="Mobile navigation">
+            {navLinks.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                onClick={closeMobile}
+                className="flex items-center px-4 py-4 rounded-lg text-base font-medium"
+                style={{
+                  color: 'var(--text-primary)',
+                  borderBottom: '1px solid var(--border-subtle)',
+                  textDecoration: 'none',
+                }}
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
+
+          <div className="pt-5 flex flex-col gap-3 mt-auto pb-8">
+            <a
+              href="https://wa.me/918982296014"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-whatsapp justify-center py-3"
+              onClick={closeMobile}
+            >
+              <MessageSquare size={16} className="fill-white" aria-hidden="true" />
+              <span>WhatsApp · +91 89822 96014</span>
+            </a>
+            <a
+              href="#contact"
+              onClick={closeMobile}
+              className="btn-primary justify-center py-3"
+            >
+              <span>Get in Touch</span>
+              <ArrowRight size={16} aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile menu backdrop */}
+      {mobileOpen && (
+        <div
+          className="lg:hidden fixed inset-0 z-30"
+          style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
+          onClick={closeMobile}
+          aria-hidden="true"
+        />
       )}
-    </header>
+    </>
   );
 }
