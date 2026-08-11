@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { CheckCircle2, X, ArrowRight, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { CheckCircle2, X, ArrowRight, ChevronRight, Copy, Check } from 'lucide-react';
+import { toast } from 'sonner';
 
 const techPlatforms = [
   {
     id: 'adf',
     title: 'Azure Data Factory',
     category: 'Pipeline Automation & ETL',
+    filterCategory: 'Pipelines',
     icon: '/assets/tech/azure.svg',
     badge: 'ETL / ELT',
     shortDesc: 'Orchestrating enterprise-grade Azure Data Factory ETL/ELT pipelines for high-volume data integration at any scale.',
@@ -20,6 +22,7 @@ const techPlatforms = [
     id: 'fabric',
     title: 'Microsoft Fabric & OneLake',
     category: 'Lakehouse Architecture',
+    filterCategory: 'Lakehouse',
     icon: '/assets/tech/fabric.svg',
     badge: 'Lakehouse',
     shortDesc: 'Unified SaaS OneLake lakehouse architecture with Direct Lake mode for zero-copy, instant analytical queries.',
@@ -34,6 +37,7 @@ const techPlatforms = [
     id: 'powerbi',
     title: 'Power BI Analytics',
     category: 'Business Intelligence',
+    filterCategory: 'Analytics',
     icon: '/assets/tech/powerbi.svg',
     badge: 'BI Visuals',
     shortDesc: 'Transforming raw data into executive-ready real-time Power BI dashboards with advanced DAX and RLS security.',
@@ -48,6 +52,7 @@ const techPlatforms = [
     id: 'databricks',
     title: 'Databricks & PySpark',
     category: 'Big Data Processing',
+    filterCategory: 'Lakehouse',
     icon: '/assets/tech/databricks.svg',
     badge: 'Data & AI',
     shortDesc: 'Scalable PySpark distributed processing, Delta Lake ACID storage, and ML model deployment on Databricks clusters.',
@@ -62,6 +67,7 @@ const techPlatforms = [
     id: 'dbt',
     title: 'dbt Transformation Layer',
     category: 'Modern Data Stack',
+    filterCategory: 'Pipelines',
     icon: '/assets/tech/dbt.png',
     badge: 'Transform',
     shortDesc: 'Modular, version-controlled SQL data transformations with automated testing, lineage graphs, and documentation.',
@@ -76,6 +82,7 @@ const techPlatforms = [
     id: 'ai',
     title: 'Enterprise AI Agents',
     category: 'Generative AI & LLM',
+    filterCategory: 'AI / LLM',
     icon: '/assets/tech/openai.svg',
     badge: 'AI / LLM',
     shortDesc: 'Building production LLM agents, RAG pipelines, and predictive ML models using Azure OpenAI and Databricks.',
@@ -87,6 +94,8 @@ const techPlatforms = [
     accentColor: '#8b5cf6',
   },
 ];
+
+const filterTabs = ['All', 'Pipelines', 'Lakehouse', 'Analytics', 'AI / LLM'];
 
 function FocusTrap({ children, onClose }) {
   const containerRef = useRef(null);
@@ -120,17 +129,34 @@ function FocusTrap({ children, onClose }) {
 
 export default function PlatformGrid() {
   const [selected, setSelected] = useState(null);
+  const [activeFilter, setActiveFilter] = useState('All');
+  const [copied, setCopied] = useState(false);
   const triggerRef = useRef(null);
+
+  const filteredPlatforms = useMemo(() => {
+    if (activeFilter === 'All') return techPlatforms;
+    return techPlatforms.filter((p) => p.filterCategory === activeFilter);
+  }, [activeFilter]);
 
   const openModal = useCallback((tech, el) => {
     triggerRef.current = el;
     setSelected(tech);
+    setCopied(false);
   }, []);
 
   const closeModal = useCallback(() => {
     setSelected(null);
+    setCopied(false);
     triggerRef.current?.focus();
   }, []);
+
+  const copySpecs = (tech) => {
+    const text = `${tech.title} (${tech.category})\n\n${tech.shortDesc}\n\nTechnical Specifications:\n${tech.specs.map(s => `• ${s}`).join('\n')}`;
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    toast.success(`${tech.title} specs copied to clipboard!`);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   /* Body scroll lock when modal open */
   useEffect(() => {
@@ -146,14 +172,46 @@ export default function PlatformGrid() {
       style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-subtle)' }}
     >
       <div className="container">
-        <div className="max-w-3xl mb-14 space-y-4">
-          <div className="section-badge w-fit">Capabilities &amp; Tech Stack</div>
-          <h2 id="services-heading" className="section-title">
-            Enterprise <strong>Azure Data &amp; AI</strong> Platform
-          </h2>
-          <p className="section-subtitle">
-            Production-proven implementations across Azure Data Factory, Microsoft Fabric, Power BI, Databricks, dbt, and enterprise AI models.
-          </p>
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
+          <div className="max-w-2xl space-y-4">
+            <div className="section-badge w-fit">Capabilities &amp; Tech Stack</div>
+            <h2 id="services-heading" className="section-title">
+              Enterprise <strong>Azure Data &amp; AI</strong> Platform
+            </h2>
+            <p className="section-subtitle">
+              Production-proven implementations across Azure Data Factory, Microsoft Fabric, Power BI, Databricks, dbt, and enterprise AI models.
+            </p>
+          </div>
+
+          {/* Interactive Filter Pills (Apple / Emil Segmentation) */}
+          <div
+            className="flex flex-wrap items-center gap-1.5 p-1 rounded-xl"
+            style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-medium)', width: 'fit-content' }}
+            role="tablist"
+            aria-label="Filter capabilities by domain"
+          >
+            {filterTabs.map((tab) => {
+              const active = activeFilter === tab;
+              return (
+                <button
+                  key={tab}
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setActiveFilter(tab)}
+                  className="px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer"
+                  style={{
+                    background: active ? 'var(--accent-cyan)' : 'transparent',
+                    color: active ? 'var(--text-on-dark)' : 'var(--text-secondary)',
+                    boxShadow: active ? '0 0 16px var(--accent-cyan-glow)' : 'none',
+                    border: 'none',
+                    transition: 'background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out)',
+                  }}
+                >
+                  {tab}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <ul
@@ -161,7 +219,7 @@ export default function PlatformGrid() {
           role="list"
           aria-label="Technology capabilities"
         >
-          {techPlatforms.map((tech) => (
+          {filteredPlatforms.map((tech) => (
             <li key={tech.id}>
               <button
                 onClick={(e) => openModal(tech, e.currentTarget)}
@@ -172,7 +230,7 @@ export default function PlatformGrid() {
                 <div className="space-y-5">
                   <div className="flex items-start justify-between gap-3">
                     <div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center p-2 overflow-hidden shrink-0 transition-transform duration-300 group-hover:scale-110"
+                      className="w-12 h-12 rounded-xl flex items-center justify-center p-2 overflow-hidden shrink-0 transition-transform duration-200 group-hover:scale-105"
                       style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-medium)' }}
                     >
                       <img
@@ -220,11 +278,10 @@ export default function PlatformGrid() {
         </ul>
       </div>
 
-      {/* Modal Dialog */}
+      {/* Modal Dialog (Emil Kowalski scale(0.96) entry & focus-trapped) */}
       {selected && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(0,0,0,0.78)', backdropFilter: 'blur(14px)' }}
+          className="modal-backdrop"
           role="presentation"
           onClick={(e) => e.target === e.currentTarget && closeModal()}
           aria-hidden="false"
@@ -235,13 +292,13 @@ export default function PlatformGrid() {
               aria-modal="true"
               aria-labelledby="modal-title"
               aria-describedby="modal-desc"
-              className="master-card w-full max-w-lg p-8 relative animate-fade-up"
+              className="master-card modal-surface w-full max-w-lg p-8 relative"
               style={{ background: 'var(--bg-elevated)', maxHeight: '92vh', overflowY: 'auto' }}
             >
               {/* Close button */}
               <button
                 onClick={closeModal}
-                className="absolute top-4 right-4 w-9 h-9 rounded-lg flex items-center justify-center transition-all"
+                className="absolute top-4 right-4 w-9 h-9 rounded-lg flex items-center justify-center transition-all cursor-pointer"
                 style={{
                   background: 'var(--bg-secondary)',
                   border: '1px solid var(--border-medium)',
@@ -285,16 +342,30 @@ export default function PlatformGrid() {
 
               {/* Specs */}
               <div className="space-y-3 mb-8">
-                <h3
-                  className="text-xs uppercase tracking-widest font-bold pb-3"
-                  style={{
-                    color: 'var(--text-muted)',
-                    fontFamily: 'JetBrains Mono, monospace',
-                    borderBottom: '1px solid var(--border-subtle)',
-                  }}
-                >
-                  Technical Specifications
-                </h3>
+                <div className="flex items-center justify-between pb-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                  <h3
+                    className="text-xs uppercase tracking-widest font-bold"
+                    style={{
+                      color: 'var(--text-muted)',
+                      fontFamily: 'JetBrains Mono, monospace',
+                    }}
+                  >
+                    Technical Specifications
+                  </h3>
+                  <button
+                    onClick={() => copySpecs(selected)}
+                    className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-md cursor-pointer transition-colors"
+                    style={{
+                      background: 'var(--bg-secondary)',
+                      border: '1px solid var(--border-medium)',
+                      color: copied ? 'var(--accent-green)' : 'var(--accent-cyan)',
+                    }}
+                    title="Copy technical specifications"
+                  >
+                    {copied ? <Check size={12} /> : <Copy size={12} />}
+                    <span>{copied ? 'Copied' : 'Copy Specs'}</span>
+                  </button>
+                </div>
                 <ul className="space-y-3 list-none p-0 m-0">
                   {selected.specs.map((spec, i) => (
                     <li key={i} className="flex items-start gap-3 text-sm" style={{ color: 'var(--text-primary)' }}>
@@ -313,14 +384,14 @@ export default function PlatformGrid() {
               <div className="flex gap-3">
                 <button
                   onClick={closeModal}
-                  className="btn-outline flex-1 justify-center py-2.5 text-sm"
+                  className="btn-outline flex-1 justify-center py-2.5 text-sm cursor-pointer"
                 >
                   Close
                 </button>
                 <a
                   href="#contact"
                   onClick={closeModal}
-                  className="btn-primary flex-1 justify-center py-2.5 text-sm"
+                  className="btn-primary flex-1 justify-center py-2.5 text-sm cursor-pointer"
                   aria-label={`Request consultation for ${selected.title}`}
                 >
                   Request Consultation

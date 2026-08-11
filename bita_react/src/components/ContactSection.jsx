@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, MessageSquare, CheckCircle2, Calendar, Building2 } from 'lucide-react';
+import { Mail, Phone, MapPin, MessageSquare, CheckCircle2, Calendar, Copy, Check } from 'lucide-react';
+import { toast } from 'sonner';
 
 const contactCards = [
   {
@@ -12,14 +13,18 @@ const contactCards = [
     icon: Phone,
     label: 'WhatsApp / Direct Call',
     value: '+91 89822 96014',
+    rawCopy: '+918982296014',
     link: 'https://wa.me/918982296014',
     isExternal: true,
+    canCopy: true,
   },
   {
     icon: Mail,
     label: 'Email Us',
     value: 'contact@bitacloudinfo.tech',
+    rawCopy: 'contact@bitacloudinfo.tech',
     link: 'mailto:contact@bitacloudinfo.tech',
+    canCopy: true,
   },
   {
     icon: Calendar,
@@ -52,25 +57,41 @@ export default function ContactSection() {
     message: '',
   });
   const [submitted, setSubmitted] = useState(false);
+  const [copiedKey, setCopiedKey] = useState(null);
+
+  const copyToClipboard = (text, label) => {
+    navigator.clipboard.writeText(text);
+    setCopiedKey(label);
+    toast.success(`${label} copied to clipboard!`);
+    setTimeout(() => setCopiedKey(null), 2000);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!form.name || !form.email || !form.message) {
+      toast.error('Please fill out all required fields marked with *');
+      return;
+    }
+
     const msg = [
       'Hello BITA Cloud Team!',
       '',
       `*Name:* ${form.name}`,
-      `*Company:* ${form.company}`,
-      `*Job Title:* ${form.jobtitle}`,
+      `*Company:* ${form.company || 'N/A'}`,
+      `*Job Title:* ${form.jobtitle || 'N/A'}`,
       `*Email:* ${form.email}`,
       `*Service Required:* ${form.service}`,
       `*Message:* ${form.message}`,
     ].join('%0A');
 
     setSubmitted(true);
+    toast.loading('Preparing your consultation brief...', { id: 'contact-submit' });
+
     setTimeout(() => {
+      toast.success('Opening WhatsApp with your project brief...', { id: 'contact-submit' });
       window.open(`https://wa.me/918982296014?text=${msg}`, '_blank');
       setSubmitted(false);
-    }, 700);
+    }, 600);
   };
 
   return (
@@ -98,48 +119,66 @@ export default function ContactSection() {
             {contactCards.map((card, i) => (
               <div
                 key={i}
-                className="master-card p-5 flex items-start gap-4"
+                className="master-card p-5 flex items-start justify-between gap-4"
                 style={card.highlight ? { borderColor: 'var(--accent-cyan)', borderWidth: '1px' } : {}}
               >
-                <div
-                  className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-                  style={{
-                    background: card.highlight ? 'var(--accent-cyan-dim)' : 'var(--bg-secondary)',
-                    border: card.highlight
-                      ? '1px solid rgba(0,229,255,0.3)'
-                      : '1px solid var(--border-medium)',
-                  }}
-                >
-                  <card.icon size={19} style={{ color: 'var(--accent-cyan)' }} aria-hidden="true" />
-                </div>
-                <div>
-                  <p
-                    className="text-xs font-semibold uppercase tracking-widest mb-1"
-                    style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}
+                <div className="flex items-start gap-4">
+                  <div
+                    className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+                    style={{
+                      background: card.highlight ? 'var(--accent-cyan-dim)' : 'var(--bg-secondary)',
+                      border: card.highlight
+                        ? '1px solid rgba(0,229,255,0.3)'
+                        : '1px solid var(--border-medium)',
+                    }}
                   >
-                    {card.label}
-                  </p>
-                  {card.link ? (
-                    <a
-                      href={card.link}
-                      target={card.isExternal ? '_blank' : undefined}
-                      rel={card.isExternal ? 'noopener noreferrer' : undefined}
-                      className="font-semibold text-sm hover:underline"
-                      style={{ color: 'var(--accent-cyan)' }}
+                    <card.icon size={19} style={{ color: 'var(--accent-cyan)' }} aria-hidden="true" />
+                  </div>
+                  <div>
+                    <p
+                      className="text-xs font-semibold uppercase tracking-widest mb-1"
+                      style={{ color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}
                     >
-                      {card.value}
-                    </a>
-                  ) : (
-                    <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
-                      {card.value}
+                      {card.label}
                     </p>
-                  )}
-                  {card.sub && (
-                    <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                      {card.sub}
-                    </p>
-                  )}
+                    {card.link ? (
+                      <a
+                        href={card.link}
+                        target={card.isExternal ? '_blank' : undefined}
+                        rel={card.isExternal ? 'noopener noreferrer' : undefined}
+                        className="font-semibold text-sm hover:underline"
+                        style={{ color: 'var(--accent-cyan)' }}
+                      >
+                        {card.value}
+                      </a>
+                    ) : (
+                      <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
+                        {card.value}
+                      </p>
+                    )}
+                    {card.sub && (
+                      <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                        {card.sub}
+                      </p>
+                    )}
+                  </div>
                 </div>
+
+                {card.canCopy && (
+                  <button
+                    onClick={() => copyToClipboard(card.rawCopy, card.label)}
+                    className="p-2 rounded-lg text-xs font-semibold transition-colors cursor-pointer shrink-0 mt-1"
+                    style={{
+                      background: 'var(--bg-secondary)',
+                      border: '1px solid var(--border-medium)',
+                      color: copiedKey === card.label ? 'var(--accent-green)' : 'var(--text-muted)',
+                    }}
+                    title={`Copy ${card.label}`}
+                    aria-label={`Copy ${card.label}`}
+                  >
+                    {copiedKey === card.label ? <Check size={14} /> : <Copy size={14} />}
+                  </button>
+                )}
               </div>
             ))}
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Cookie, X, CheckCircle2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const CONSENT_KEY = 'bita_cookie_consent';
 
@@ -19,11 +20,13 @@ export default function CookieConsent() {
   const accept = () => {
     localStorage.setItem(CONSENT_KEY, 'accepted');
     setAccepted(true);
-    setTimeout(() => setVisible(false), 600);
+    toast.success('Cookie preferences saved.');
+    setTimeout(() => setVisible(false), 450);
   };
 
   const decline = () => {
     localStorage.setItem(CONSENT_KEY, 'declined');
+    toast.info('Non-essential cookies declined.');
     setVisible(false);
   };
 

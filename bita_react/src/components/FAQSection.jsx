@@ -39,41 +39,47 @@ const faqs = [
 function FAQItem({ q, a, isOpen, onToggle }) {
   return (
     <div
-      className="border-b transition-colors"
+      className="border-b"
       style={{ borderColor: 'var(--border-subtle)' }}
     >
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between gap-4 py-5 text-left"
+        className="w-full flex items-center justify-between gap-4 py-5 text-left cursor-pointer transition-colors"
         aria-expanded={isOpen}
       >
-        <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
+        <span 
+          className="font-semibold text-sm transition-colors" 
+          style={{ color: isOpen ? 'var(--accent-cyan)' : 'var(--text-primary)' }}
+        >
           {q}
         </span>
-        <ChevronDown
-          size={18}
+        <div
+          className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-transform duration-220"
           style={{
-            color: 'var(--accent-cyan)',
-            flexShrink: 0,
+            background: isOpen ? 'var(--accent-cyan-dim)' : 'transparent',
+            border: isOpen ? '1px solid rgba(0,229,255,0.3)' : '1px solid transparent',
             transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-            transition: 'transform 0.3s ease',
           }}
-          aria-hidden="true"
-        />
-      </button>
-      <div
-        style={{
-          maxHeight: isOpen ? '400px' : '0',
-          overflow: 'hidden',
-          transition: 'max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
-        }}
-      >
-        <p
-          className="pb-5 text-sm leading-relaxed"
-          style={{ color: 'var(--text-secondary)' }}
         >
-          {a}
-        </p>
+          <ChevronDown
+            size={16}
+            style={{
+              color: 'var(--accent-cyan)',
+              flexShrink: 0,
+            }}
+            aria-hidden="true"
+          />
+        </div>
+      </button>
+      <div className={`faq-accordion-body ${isOpen ? 'open' : ''}`}>
+        <div className="faq-accordion-inner">
+          <p
+            className="pb-5 text-sm leading-relaxed"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            {a}
+          </p>
+        </div>
       </div>
     </div>
   );

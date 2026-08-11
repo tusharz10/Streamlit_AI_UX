@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Toaster } from 'sonner';
 import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
 import StatsBanner from './components/StatsBanner';
@@ -125,6 +126,19 @@ export default function App() {
       <Footer />
       <CookieConsent />
       <StickyContact />
+      <Toaster 
+        position="top-right" 
+        richColors 
+        closeButton 
+        theme="system"
+        toastOptions={{
+          style: {
+            fontFamily: 'Inter, sans-serif',
+            fontSize: '0.85rem',
+            borderRadius: '12px',
+          }
+        }}
+      />
     </div>
   );
 }

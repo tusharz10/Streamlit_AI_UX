@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageSquare, Menu, X, Sun, Moon, ArrowRight, ChevronDown } from 'lucide-react';
+import { MessageSquare, Menu, X, Sun, Moon, ArrowRight } from 'lucide-react';
+import { toast } from 'sonner';
 
 const getInitialTheme = () => {
   if (typeof window === 'undefined') return 'dark';
@@ -74,7 +75,15 @@ export default function Navbar() {
     return () => { document.body.style.overflow = ''; };
   }, [mobileOpen]);
 
-  const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark');
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    toast(`Switched to ${nextTheme === 'dark' ? 'Dark' : 'Light'} Mode`, {
+      icon: nextTheme === 'dark' ? '🌙' : '☀️',
+      duration: 2000,
+    });
+  };
+
   const closeMobile = () => { setMobileOpen(false); hamburgerRef.current?.focus(); };
 
   return (
@@ -84,10 +93,10 @@ export default function Navbar() {
         style={{
           background: scrolled ? 'var(--nav-bg)' : 'transparent',
           borderBottom: scrolled ? '1px solid var(--border-subtle)' : '1px solid transparent',
-          backdropFilter: scrolled ? 'blur(20px)' : 'none',
-          WebkitBackdropFilter: scrolled ? 'blur(20px)' : 'none',
-          boxShadow: scrolled ? '0 2px 32px rgba(0,0,0,0.30)' : 'none',
-          transition: 'all 0.3s ease',
+          backdropFilter: scrolled ? 'blur(20px) saturate(180%)' : 'none',
+          WebkitBackdropFilter: scrolled ? 'blur(20px) saturate(180%)' : 'none',
+          boxShadow: scrolled ? '0 4px 30px rgba(0,0,0,0.25)' : 'none',
+          transition: 'background-color var(--duration-normal) ease, border-color var(--duration-normal) ease, box-shadow var(--duration-normal) var(--ease-out)',
         }}
         className="fixed top-0 left-0 right-0 z-50"
       >
@@ -223,7 +232,7 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* Mobile Menu Drawer */}
+      {/* Mobile Menu Drawer (iOS Drawer Physics) */}
       <div
         id="mobile-nav"
         role="dialog"
@@ -234,7 +243,7 @@ export default function Navbar() {
         style={{
           background: 'var(--bg-primary)',
           transform: mobileOpen ? 'translateX(0)' : 'translateX(-100%)',
-          transition: 'transform 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
+          transition: 'transform 260ms var(--ease-drawer)',
           pointerEvents: mobileOpen ? 'auto' : 'none',
         }}
         aria-hidden={!mobileOpen}

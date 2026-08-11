@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MessageSquare, X, ChevronUp } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function StickyContact() {
   const [visible, setVisible] = useState(false);
@@ -12,10 +13,10 @@ export default function StickyContact() {
     };
     window.addEventListener('scroll', onScroll, { passive: true });
 
-    // Show tooltip after 3s of scrolling
+    // Show tooltip after 4s of scrolling
     const timer = setTimeout(() => {
       if (!dismissed) setTooltipVisible(true);
-    }, 5000);
+    }, 4000);
 
     return () => {
       window.removeEventListener('scroll', onScroll);
@@ -28,6 +29,11 @@ export default function StickyContact() {
     e.stopPropagation();
     setTooltipVisible(false);
     setDismissed(true);
+  };
+
+  const handleWhatsAppClick = () => {
+    setTooltipVisible(false);
+    toast.info('Connecting to certified Azure team on WhatsApp...');
   };
 
   if (!visible) return null;
@@ -54,9 +60,9 @@ export default function StickyContact() {
         >
           <button
             onClick={dismissTooltip}
-            className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center rounded"
-            style={{ color: 'var(--text-muted)', background: 'transparent', border: 'none', cursor: 'pointer' }}
-            aria-label="Dismiss"
+            className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center rounded cursor-pointer"
+            style={{ color: 'var(--text-muted)', background: 'transparent', border: 'none' }}
+            aria-label="Dismiss consultation prompt"
           >
             <X size={12} />
           </button>
@@ -75,24 +81,22 @@ export default function StickyContact() {
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Chat with BITA CLOUD on WhatsApp — get a free consultation"
+        className="btn-whatsapp"
         style={{
           pointerEvents: 'auto',
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
           padding: '14px 20px',
-          background: '#25d366',
-          color: '#fff',
           borderRadius: '50px',
           fontWeight: 700,
           fontSize: '0.875rem',
-          textDecoration: 'none',
           boxShadow: '0 4px 24px rgba(37,211,102,0.45)',
-          animation: 'pulse-ring 2.5s ease-in-out infinite',
+          animation: 'pulse-ring 2.8s ease-in-out infinite',
           cursor: 'pointer',
           whiteSpace: 'nowrap',
         }}
-        onClick={() => setTooltipVisible(false)}
+        onClick={handleWhatsAppClick}
       >
         <MessageSquare size={18} className="fill-white" aria-hidden="true" />
         <span className="hidden sm:inline">Free Consultation</span>
