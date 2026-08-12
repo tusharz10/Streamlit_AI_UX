@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# One-Click Production Deployment & Auto-Start Script for Streamlit_AI_UX / bita_react
+# Production Setup & Deployment Script for bitacloudinfotech.com (React SPA + HTTPS)
 # ==============================================================================
 
 set -e
 
-echo "🚀 [1/6] Updating System & Installing Essentials (Nginx, Git, Curl, Node.js)..."
+echo "🚀 [1/6] Updating System & Installing Essentials (Nginx, Certbot, Git, Curl, Node.js)..."
 sudo apt-get update -y
-sudo apt-get install -y nginx git curl build-essential
+sudo apt-get install -y nginx git curl build-essential certbot python3-certbot-nginx rsync
 
 # Install Node.js 20 LTS if node is not found or outdated
 if ! command -v node &> /dev/null; then
@@ -36,78 +36,106 @@ fi
 
 # Build Frontend Bundle
 echo "🛠️ [3/6] Installing dependencies and building production bundle..."
-if [ -d "$APP_DIR/bita_react" ]; then
-    cd "$APP_DIR/bita_react"
-elif [ -d "$APP_DIR/client" ]; then
-    cd "$APP_DIR/client"
-fi
-
+cd "$APP_DIR/bita_react"
 npm install
 npm run build
 
 # Deploy Built Assets to /var/www/bita_react
 echo "📂 [4/6] Deploying static bundle to /var/www/bita_react..."
 sudo mkdir -p /var/www/bita_react
-sudo rm -rf /var/www/bita_react_temp
-sudo cp -r dist /var/www/bita_react_temp
-sudo rm -rf /var/www/bita_react/*
-sudo cp -r /var/www/bita_react_temp/* /var/www/bita_react/
-sudo rm -rf /var/www/bita_react_temp
+if command -v rsync &> /dev/null; then
+    sudo rsync -av --delete "$APP_DIR/bita_react/dist/" /var/www/bita_react/
+else
+    sudo cp -r "$APP_DIR/bita_react/dist/." /var/www/bita_react/
+fi
 sudo chown -R www-data:www-data /var/www/bita_react
 sudo chmod -R 755 /var/www/bita_react
 
-# Configure Nginx for React SPA (Direct URLs and Caching)
+# Configure Nginx for React SPA (HTTP & HTTPS)
 echo "⚙️ [5/6] Configuring Nginx web server..."
-sudo bash -c 'cat > /etc/nginx/sites-available/bita_react << "EOF"
+sudo bash -c 'cat > /etc/nginx/sites-available/bitacloudinfotech << "EOF"
 server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-    server_name _;
+    listen 80;
+    listen [::]:80;
+    server_name bitacloudinfotech.com www.bitacloudinfotech.com;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/bita_react;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name bitacloudinfotech.com www.bitacloudinfotech.com;
 
     root /var/www/bita_react;
     index index.html;
 
-    # Gzip Compression
+    # SSL Certificates
+    ssl_certificate /etc/letsencrypt/live/bitacloudinfotech.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/bitacloudinfotech.com/privkey.pem;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
+    ssl_session_timeout 1d;
+    ssl_session_cache shared:SSL:50m;
+    ssl_session_tickets off;
+
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "no-referrer-when-downgrade" always;
+
     gzip on;
     gzip_vary on;
     gzip_min_length 1024;
     gzip_proxied expired no-cache no-store private auth;
     gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript image/svg+xml;
 
-    # Caching for assets
     location ~* \.(?:ico|css|js|gif|jpe?g|png|woff2?|eot|ttf|svg|webp)$ {
         expires 6M;
         access_log off;
         add_header Cache-Control "public, max-age=15552000, immutable";
     }
 
-    # SPA routing fallback
     location / {
         try_files $uri $uri/ /index.html;
     }
 }
 EOF'
 
-sudo ln -sf /etc/nginx/sites-available/bita_react /etc/nginx/sites-enabled/bita_react
-sudo rm -f /etc/nginx/sites-enabled/default
+sudo ln -sf /etc/nginx/sites-available/bitacloudinfotech /etc/nginx/sites-enabled/bitacloudinfotech
+sudo rm -f /etc/nginx/sites-enabled/default /etc/nginx/sites-enabled/bita_react
 
-# Enable Nginx on Boot & Restart Service
+# Enable Nginx & Certbot Timer on Boot
 echo "⚡ [6/6] Enabling Auto-Start on System Boot & Starting Nginx..."
 sudo systemctl enable nginx
+sudo systemctl enable certbot.timer
 sudo nginx -t
-sudo systemctl restart nginx
+
+if sudo systemctl is-active --quiet nginx; then
+    sudo systemctl reload nginx
+else
+    sudo systemctl restart nginx
+fi
 
 # Verify Health
 sleep 2
-HTTP_STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost || echo "000")
-SERVER_IP=$(curl -s https://api.ipify.org || echo "your-server-ip")
+HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://bitacloudinfotech.com || echo "000")
 
 if [ "$HTTP_STATUS" -eq 200 ] || [ "$HTTP_STATUS" -eq 301 ] || [ "$HTTP_STATUS" -eq 302 ]; then
     echo "================================================================"
     echo "🎉 CONGRATULATIONS! YOUR WEBSITE IS NOW LIVE & HEALTHY!"
-    echo "🌐 URL: http://$SERVER_IP"
+    echo "🌐 URL: https://bitacloudinfotech.com"
+    echo "🔒 HTTPS & SSL: Active & Auto-Renewing"
     echo "⚡ Auto-Start on Reboot: ENABLED (systemctl enabled)"
     echo "================================================================"
 else
-    echo "⚠️ Warning: HTTP status was $HTTP_STATUS. Please check Nginx logs: sudo tail -n 20 /var/log/nginx/error.log"
+    echo "⚠️ Warning: HTTPS status was $HTTP_STATUS. Please check Nginx logs: sudo tail -n 20 /var/log/nginx/error.log"
 fi

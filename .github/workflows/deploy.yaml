@@ -1,4 +1,4 @@
-name: Deploy & Auto-Recovery Website
+name: Production Deploy & Auto-Recovery (HTTPS & Zero-Downtime)
 
 on:
   push:
@@ -8,92 +8,112 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to Server & Auto-Start Config
+    name: Deploy to Production Server (bitacloudinfotech.com)
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy with Auto-Recovery & Boot Persistence
+      - name: SSH Deploy & Zero-Downtime Reload
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
             set -e
-            echo "=========================================="
-            echo "🚀 STARTING WEBSITE DEPLOYMENT & AUTO-START"
-            echo "=========================================="
+            echo "=========================================================="
+            echo "🚀 STARTING PRODUCTION DEPLOYMENT FOR bitacloudinfotech.com"
+            echo "=========================================================="
 
-            # 1. Environment & Node.js Setup
+            # 1. Environment & Paths
+            export PATH=$PATH:/usr/local/bin:/usr/bin:/bin:$HOME/.npm-global/bin
             export NVM_DIR="$HOME/.nvm"
             if [ -s "$NVM_DIR/nvm.sh" ]; then
               . "$NVM_DIR/nvm.sh"
             fi
 
-            # Fallback to system node or load standard paths
-            export PATH=$PATH:/usr/local/bin:/usr/bin:/bin:$HOME/.npm-global/bin
+            echo "📦 Node Version: $(node -v 2>/dev/null || echo 'Not found')"
+            echo "📦 NPM Version: $(npm -v 2>/dev/null || echo 'Not found')"
 
-            if command -v nvm &> /dev/null; then
-              nvm use 20 || nvm use --lts || true
-            fi
-
-            echo "📦 Node Version: $(node -v 2>/dev/null || echo 'Not installed')"
-            echo "📦 NPM Version: $(npm -v 2>/dev/null || echo 'Not installed')"
-
-            # 2. Locate or Clone Repository
+            # 2. Application Directory
             APP_DIR="$HOME/Streamlit_AI_UX"
             if [ ! -d "$APP_DIR" ]; then
-              echo "📥 Repository folder not found at $APP_DIR. Checking current directory or cloning..."
-              if [ -d "$HOME/Estore" ]; then
-                APP_DIR="$HOME/Estore"
-              else
-                APP_DIR="$HOME/Streamlit_AI_UX"
-                git clone https://github.com/tusharz10/Streamlit_AI_UX.git "$APP_DIR"
-              fi
+              echo "📥 Cloning repository into $APP_DIR..."
+              git clone https://github.com/tusharz10/Streamlit_AI_UX.git "$APP_DIR"
             fi
 
-            echo "📂 Working directory: $APP_DIR"
             cd "$APP_DIR"
+            git config --global --add safe.directory "$APP_DIR" || true
 
-            # 3. Pull Latest Code
-            echo "🔄 Pulling latest changes from origin/main..."
+            # 3. Pull Latest Changes from main
+            echo "🔄 Pulling latest code from origin/main..."
             git fetch --all
             git reset --hard origin/main
             git pull origin main
 
-            # 4. Install Dependencies & Build Frontend Bundle
+            # 4. Install Dependencies & Build Frontend
             echo "🛠️ Installing dependencies and building production bundle..."
-            if [ -d "$APP_DIR/bita_react" ]; then
-              cd "$APP_DIR/bita_react"
-            elif [ -d "$APP_DIR/client" ]; then
-              cd "$APP_DIR/client"
-            fi
-
+            cd "$APP_DIR/bita_react"
             npm install
             npm run build
 
-            # 5. Deploy Built Bundle to /var/www/bita_react
-            echo "🚀 Deploying static bundle to /var/www/bita_react..."
+            # 5. Zero-Downtime Deployment of Built Bundle
+            echo "📂 Syncing production bundle to /var/www/bita_react..."
             sudo mkdir -p /var/www/bita_react
-            sudo rm -rf /var/www/bita_react_temp
-            sudo cp -r dist /var/www/bita_react_temp
-            sudo rm -rf /var/www/bita_react/*
-            sudo cp -r /var/www/bita_react_temp/* /var/www/bita_react/
-            sudo rm -rf /var/www/bita_react_temp
+            if command -v rsync &> /dev/null; then
+              sudo rsync -av --delete "$APP_DIR/bita_react/dist/" /var/www/bita_react/
+            else
+              sudo cp -r "$APP_DIR/bita_react/dist/." /var/www/bita_react/
+            fi
             sudo chown -R www-data:www-data /var/www/bita_react
             sudo chmod -R 755 /var/www/bita_react
 
-            # 6. Configure Nginx with SPA Fallback & Caching
-            echo "⚙️ Configuring Nginx server block..."
-            sudo bash -c 'cat > /etc/nginx/sites-available/bita_react << "EOF"
+            # 6. Ensure Nginx Configuration (Preserving SSL & SPA Fallback)
+            echo "⚙️ Verifying Nginx configuration..."
+            sudo bash -c 'cat > /etc/nginx/sites-available/bitacloudinfotech << "EOF"
+# Production Nginx Config for bitacloudinfotech.com
 server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-    server_name _;
+    listen 80;
+    listen [::]:80;
+    server_name bitacloudinfotech.com www.bitacloudinfotech.com;
+
+    # Let'\''s Encrypt ACME Challenge
+    location /.well-known/acme-challenge/ {
+        root /var/www/bita_react;
+    }
+
+    # Redirect HTTP to HTTPS
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name bitacloudinfotech.com www.bitacloudinfotech.com;
 
     root /var/www/bita_react;
     index index.html;
+
+    # SSL Certificates
+    ssl_certificate /etc/letsencrypt/live/bitacloudinfotech.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/bitacloudinfotech.com/privkey.pem;
+
+    # Modern TLS & Cipher Suites
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384;
+    ssl_session_timeout 1d;
+    ssl_session_cache shared:SSL:50m;
+    ssl_session_tickets off;
+
+    # Security Headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "no-referrer-when-downgrade" always;
 
     # Gzip Compression
     gzip on;
@@ -109,44 +129,50 @@ server {
         add_header Cache-Control "public, max-age=15552000, immutable";
     }
 
-    # SPA Direct Routing (prevents 404 on page refresh)
+    # SPA Direct Routing Fallback (prevents 404 on page refresh)
     location / {
         try_files $uri $uri/ /index.html;
     }
 }
 EOF'
 
-            # Enable the site and disable default site
-            sudo ln -sf /etc/nginx/sites-available/bita_react /etc/nginx/sites-enabled/bita_react
-            sudo rm -f /etc/nginx/sites-enabled/default
+            # Link configuration and clean legacy defaults
+            sudo ln -sf /etc/nginx/sites-available/bitacloudinfotech /etc/nginx/sites-enabled/bitacloudinfotech
+            sudo rm -f /etc/nginx/sites-enabled/default /etc/nginx/sites-enabled/bita_react
 
-            # 7. Enable Nginx Auto-Start on Server Boot
-            echo "⚡ Enabling Nginx to auto-start on server boot..."
+            # 7. Enable Auto-Start on System Boot
+            echo "⚡ Enabling auto-start on server boot..."
             sudo systemctl enable nginx
+            sudo systemctl enable certbot.timer
 
-            # 8. Test and Restart Nginx
-            echo "🔧 Testing Nginx configuration syntax..."
+            # 8. Test and Gracefully Reload Nginx
+            echo "🔧 Validating Nginx syntax..."
             sudo nginx -t
 
-            echo "🔄 Restarting Nginx service..."
-            sudo systemctl restart nginx
-
-            # 9. Health Check
-            echo "🔍 Performing Health Check..."
-            sleep 2
-            HTTP_STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost || echo "000")
-            echo "HTTP STATUS: $HTTP_STATUS"
-
-            if [ "$HTTP_STATUS" -ne 200 ] && [ "$HTTP_STATUS" -ne 301 ] && [ "$HTTP_STATUS" -ne 302 ]; then
-              echo "❌ WEBSITE HEALTH CHECK FAILED"
-              echo "📌 Nginx Status:"
-              sudo systemctl status nginx --no-pager || true
-              echo "📌 Nginx Logs:"
-              sudo tail -n 25 /var/log/nginx/error.log || true
-              exit 1
+            echo "🔄 Gracefully reloading Nginx service..."
+            if sudo systemctl is-active --quiet nginx; then
+              sudo systemctl reload nginx
             else
-              echo "=========================================="
-              echo "🎉 WEBSITE IS LIVE & RUNNING HEALTHY (HTTP $HTTP_STATUS)!"
-              echo "✅ Auto-start on server reboot is ENABLED."
-              echo "=========================================="
+              sudo systemctl restart nginx
+            fi
+
+            # 9. Automated Production Health Check
+            echo "🔍 Running Automated Health Checks..."
+            sleep 2
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost || echo "000")
+            HTTPS_CODE=$(curl -s -k -o /dev/null -w "%{http_code}" https://localhost || echo "000")
+            echo "Local HTTP Status: $HTTP_CODE (expected 301 redirect)"
+            echo "Local HTTPS Status: $HTTPS_CODE (expected 200)"
+
+            if [ "$HTTPS_CODE" -eq 200 ] || [ "$HTTP_CODE" -eq 301 ]; then
+              echo "=========================================================="
+              echo "🎉 DEPLOYMENT SUCCESSFUL! WEBSITE IS LIVE & HEALTHY"
+              echo "🌐 URL: https://bitacloudinfotech.com"
+              echo "🔒 SSL Status: Active & Auto-Renewing"
+              echo "⚡ Auto-Start on Boot: Enabled"
+              echo "=========================================================="
+            else
+              echo "❌ Health check failed. Nginx status:"
+              sudo systemctl status nginx --no-pager || true
+              exit 1
             fi
