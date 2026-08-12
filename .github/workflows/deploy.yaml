@@ -1,101 +1,152 @@
-name: Deploy with Full Health Recovery
+name: Deploy & Auto-Recovery Website
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   deploy:
+    name: Deploy to Server & Auto-Start Config
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy with Auto Recovery + Health Check
-        uses: appleboy/ssh-action@v1.0.0
+      - name: Deploy with Auto-Recovery & Boot Persistence
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
+            set -e
+            echo "=========================================="
+            echo "🚀 STARTING WEBSITE DEPLOYMENT & AUTO-START"
+            echo "=========================================="
 
-            echo "🚀 DEPLOY STARTED (AUTO RECOVERY MODE)"
-
-            # =========================
-            # NODE SETUP
-            # =========================
+            # 1. Environment & Node.js Setup
             export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-            nvm use 20
+            if [ -s "$NVM_DIR/nvm.sh" ]; then
+              . "$NVM_DIR/nvm.sh"
+            fi
 
-            node -v
-            npm -v
+            # Fallback to system node or load standard paths
+            export PATH=$PATH:/usr/local/bin:/usr/bin:/bin:$HOME/.npm-global/bin
 
-            # =========================
-            # CODE UPDATE
-            # =========================
-            cd ~/Estore
+            if command -v nvm &> /dev/null; then
+              nvm use 20 || nvm use --lts || true
+            fi
+
+            echo "📦 Node Version: $(node -v 2>/dev/null || echo 'Not installed')"
+            echo "📦 NPM Version: $(npm -v 2>/dev/null || echo 'Not installed')"
+
+            # 2. Locate or Clone Repository
+            APP_DIR="$HOME/Streamlit_AI_UX"
+            if [ ! -d "$APP_DIR" ]; then
+              echo "📥 Repository folder not found at $APP_DIR. Checking current directory or cloning..."
+              if [ -d "$HOME/Estore" ]; then
+                APP_DIR="$HOME/Estore"
+              else
+                APP_DIR="$HOME/Streamlit_AI_UX"
+                git clone https://github.com/tusharz10/Streamlit_AI_UX.git "$APP_DIR"
+              fi
+            fi
+
+            echo "📂 Working directory: $APP_DIR"
+            cd "$APP_DIR"
+
+            # 3. Pull Latest Code
+            echo "🔄 Pulling latest changes from origin/main..."
+            git fetch --all
+            git reset --hard origin/main
             git pull origin main
 
-            # =========================
-            # BACKEND FIX
-            # =========================
-            cd server
-            npm install
+            # 4. Install Dependencies & Build Frontend Bundle
+            echo "🛠️ Installing dependencies and building production bundle..."
+            if [ -d "$APP_DIR/bita_react" ]; then
+              cd "$APP_DIR/bita_react"
+            elif [ -d "$APP_DIR/client" ]; then
+              cd "$APP_DIR/client"
+            fi
 
-            export PATH=$PATH:/usr/local/bin:/home/Demo/.npm-global/bin
-
-            pm2 reload backend || pm2 start app.js --name backend
-
-            # =========================
-            # FRONTEND BUILD
-            # =========================
-            cd ../client
             npm install
             npm run build
 
-            # =========================
-            # DEPLOY FRONTEND SAFELY
-            # =========================
-            rm -rf /home/Demo/Estore/client/dist_new
-            cp -r dist /home/Demo/Estore/client/dist_new
-            rm -rf /home/Demo/Estore/client/dist
-            mv /home/Demo/Estore/client/dist_new /home/Demo/Estore/client/dist
+            # 5. Deploy Built Bundle to /var/www/bita_react
+            echo "🚀 Deploying static bundle to /var/www/bita_react..."
+            sudo mkdir -p /var/www/bita_react
+            sudo rm -rf /var/www/bita_react_temp
+            sudo cp -r dist /var/www/bita_react_temp
+            sudo rm -rf /var/www/bita_react/*
+            sudo cp -r /var/www/bita_react_temp/* /var/www/bita_react/
+            sudo rm -rf /var/www/bita_react_temp
+            sudo chown -R www-data:www-data /var/www/bita_react
+            sudo chmod -R 755 /var/www/bita_react
 
-            # =========================
-            # 🔥 FIX NGINX (CRITICAL FIX)
-            # =========================
-            echo "🔧 CHECKING NGINX STATUS..."
+            # 6. Configure Nginx with SPA Fallback & Caching
+            echo "⚙️ Configuring Nginx server block..."
+            sudo bash -c 'cat > /etc/nginx/sites-available/bita_react << "EOF"
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
 
-            if ! systemctl is-active --quiet nginx; then
-              echo "⚠️ NGINX IS DOWN → STARTING IT..."
-              sudo systemctl start nginx
-            else
-              echo "✅ NGINX IS RUNNING → RELOADING"
-              sudo systemctl reload nginx
-            fi
+    root /var/www/bita_react;
+    index index.html;
 
-            # =========================
-            # HEALTH CHECK
-            # =========================
-            echo "🔍 CHECKING WEBSITE STATUS..."
+    # Gzip Compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied expired no-cache no-store private auth;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript image/svg+xml;
 
-            HTTP_STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost)
+    # Browser Cache for static assets
+    location ~* \.(?:ico|css|js|gif|jpe?g|png|woff2?|eot|ttf|svg|webp)$ {
+        expires 6M;
+        access_log off;
+        add_header Cache-Control "public, max-age=15552000, immutable";
+    }
 
+    # SPA Direct Routing (prevents 404 on page refresh)
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+EOF'
+
+            # Enable the site and disable default site
+            sudo ln -sf /etc/nginx/sites-available/bita_react /etc/nginx/sites-enabled/bita_react
+            sudo rm -f /etc/nginx/sites-enabled/default
+
+            # 7. Enable Nginx Auto-Start on Server Boot
+            echo "⚡ Enabling Nginx to auto-start on server boot..."
+            sudo systemctl enable nginx
+
+            # 8. Test and Restart Nginx
+            echo "🔧 Testing Nginx configuration syntax..."
+            sudo nginx -t
+
+            echo "🔄 Restarting Nginx service..."
+            sudo systemctl restart nginx
+
+            # 9. Health Check
+            echo "🔍 Performing Health Check..."
+            sleep 2
+            HTTP_STATUS=$(curl -o /dev/null -s -w "%{http_code}" http://localhost || echo "000")
             echo "HTTP STATUS: $HTTP_STATUS"
 
-            if [ "$HTTP_STATUS" -ne 200 ]; then
-              echo "❌ WEBSITE NOT LIVE"
-
-              echo "📌 NGINX STATUS:"
-              systemctl status nginx --no-pager
-
-              echo "📌 PM2 STATUS:"
-              pm2 list
-
-              echo "📌 PORT CHECK:"
-              sudo ss -tulpn | grep :80 || true
-
+            if [ "$HTTP_STATUS" -ne 200 ] && [ "$HTTP_STATUS" -ne 301 ] && [ "$HTTP_STATUS" -ne 302 ]; then
+              echo "❌ WEBSITE HEALTH CHECK FAILED"
+              echo "📌 Nginx Status:"
+              sudo systemctl status nginx --no-pager || true
+              echo "📌 Nginx Logs:"
+              sudo tail -n 25 /var/log/nginx/error.log || true
               exit 1
             else
-              echo "🎉 WEBSITE IS LIVE & HEALTHY (HTTP 200)"
+              echo "=========================================="
+              echo "🎉 WEBSITE IS LIVE & RUNNING HEALTHY (HTTP $HTTP_STATUS)!"
+              echo "✅ Auto-start on server reboot is ENABLED."
+              echo "=========================================="
             fi
