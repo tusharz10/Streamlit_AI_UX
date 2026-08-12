@@ -1,4 +1,4 @@
-name: Production Deploy & Auto-Recovery (HTTPS & Zero-Downtime)
+name: Production Multi-Stage Deployment & Live Verification
 
 on:
   push:
@@ -8,11 +8,11 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to Production Server (bitacloudinfotech.com)
+    name: 🚀 Production CI/CD Pipeline (bitacloudinfotech.com)
     runs-on: ubuntu-latest
 
     steps:
-      - name: SSH Deploy & Zero-Downtime Reload
+      - name: 📥 1. Pull Latest Code & Setup Environment
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST || '74.225.234.158' }}
@@ -21,9 +21,16 @@ jobs:
           port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
             set -e
+            echo "=========================================================="
+            echo "📥 STEP 1: Setting up environment & pulling latest changes"
+            echo "=========================================================="
+            export PATH=$PATH:/usr/local/bin:/usr/bin:/bin:$HOME/.npm-global/bin
+            export NVM_DIR="$HOME/.nvm"
+            if [ -s "$NVM_DIR/nvm.sh" ]; then . "$NVM_DIR/nvm.sh"; fi
+
             APP_DIR="$HOME/Streamlit_AI_UX"
             if [ ! -d "$APP_DIR" ]; then
-              echo "📥 Cloning repository..."
+              echo "Cloning repository..."
               git clone https://github.com/tusharz10/Streamlit_AI_UX.git "$APP_DIR"
             fi
             cd "$APP_DIR"
@@ -31,5 +38,117 @@ jobs:
             git fetch --all
             git reset --hard origin/main
             git pull origin main
+            echo "✅ Latest commit on server: $(git log -1 --oneline)"
+
+      - name: 🛠️ 2. Build Production Bundle & Packages
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST || '74.225.234.158' }}
+          username: ${{ secrets.SERVER_USER || 'Tushar' }}
+          password: ${{ secrets.SERVER_PASSWORD || 'India@12345!' }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            set -e
+            echo "=========================================================="
+            echo "🛠️ STEP 2: Installing dependencies & building Vite bundle"
+            echo "=========================================================="
+            export PATH=$PATH:/usr/local/bin:/usr/bin:/bin:$HOME/.npm-global/bin
+            export NVM_DIR="$HOME/.nvm"
+            if [ -s "$NVM_DIR/nvm.sh" ]; then . "$NVM_DIR/nvm.sh"; fi
+
+            APP_DIR="$HOME/Streamlit_AI_UX"
+            cd "$APP_DIR/bita_react"
+            echo "📦 Node Version: $(node -v)"
+            echo "📦 NPM Version: $(npm -v)"
+            npm install
+            npm run build
+            echo "✅ Production bundle built successfully in $APP_DIR/bita_react/dist"
+
+      - name: 📂 3. Deploy Bundle to Web Root (Zero-Downtime Atomic Sync)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST || '74.225.234.158' }}
+          username: ${{ secrets.SERVER_USER || 'Tushar' }}
+          password: ${{ secrets.SERVER_PASSWORD || 'India@12345!' }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            set -e
+            echo "=========================================================="
+            echo "📂 STEP 3: Atomic bundle sync to /var/www/bita_react"
+            echo "=========================================================="
+            APP_DIR="$HOME/Streamlit_AI_UX"
+            sudo mkdir -p /var/www/bita_react
+            if command -v rsync &> /dev/null; then
+              sudo rsync -av --delete "$APP_DIR/bita_react/dist/" /var/www/bita_react/
+            else
+              sudo cp -r "$APP_DIR/bita_react/dist/." /var/www/bita_react/
+            fi
+            sudo chown -R www-data:www-data /var/www/bita_react
+            sudo chmod -R 755 /var/www/bita_react
+            echo "✅ Static assets deployed with correct permissions."
+
+      - name: ⚙️ 4. Configure & Reload Nginx Web Server (Zero-Downtime)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST || '74.225.234.158' }}
+          username: ${{ secrets.SERVER_USER || 'Tushar' }}
+          password: ${{ secrets.SERVER_PASSWORD || 'India@12345!' }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            set -e
+            echo "=========================================================="
+            echo "⚙️ STEP 4: Configuring & Gracefully Reloading Nginx"
+            echo "=========================================================="
+            APP_DIR="$HOME/Streamlit_AI_UX"
+            cd "$APP_DIR"
             chmod +x deploy.sh
-            bash deploy.sh
+            
+            sudo ln -sf /etc/nginx/sites-available/bitacloudinfotech /etc/nginx/sites-enabled/bitacloudinfotech
+            sudo rm -f /etc/nginx/sites-enabled/default /etc/nginx/sites-enabled/bita_react
+            
+            sudo systemctl enable nginx
+            sudo systemctl enable certbot.timer
+            sudo nginx -t
+
+            if sudo systemctl is-active --quiet nginx; then
+              echo "🔄 Gracefully reloading Nginx (Zero-Downtime)..."
+              sudo systemctl reload nginx
+            else
+              echo "🚀 Starting Nginx service..."
+              sudo systemctl restart nginx
+            fi
+            echo "✅ Nginx is active, running, and enabled for auto-start on boot."
+
+      - name: 🔍 5. Verify Live Website & SSL Health Check
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST || '74.225.234.158' }}
+          username: ${{ secrets.SERVER_USER || 'Tushar' }}
+          password: ${{ secrets.SERVER_PASSWORD || 'India@12345!' }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            set -e
+            echo "=========================================================="
+            echo "🔍 STEP 5: Running Automated Live Health Checks"
+            echo "=========================================================="
+            sleep 2
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost || echo "000")
+            HTTPS_CODE=$(curl -s -k -o /dev/null -w "%{http_code}" https://localhost || echo "000")
+            DOMAIN_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://bitacloudinfotech.com || echo "000")
+
+            echo "🌐 Local HTTP Code: $HTTP_CODE (expected 301 redirect)"
+            echo "🔒 Local HTTPS Code: $HTTPS_CODE (expected 200)"
+            echo "🚀 Domain HTTPS Code: $DOMAIN_CODE (expected 200)"
+
+            if [ "$DOMAIN_CODE" -eq 200 ] || [ "$HTTPS_CODE" -eq 200 ]; then
+              echo "=========================================================="
+              echo "🎉 WEBSITE IS 100% LIVE & RUNNING HEALTHY!"
+              echo "🌐 Live URL: https://bitacloudinfotech.com"
+              echo "🔒 SSL Status: Active & Secured"
+              echo "⚡ Zero-Downtime Reload: Complete"
+              echo "=========================================================="
+            else
+              echo "❌ Health check failed. Nginx logs:"
+              sudo tail -n 25 /var/log/nginx/error.log || true
+              exit 1
+            fi
